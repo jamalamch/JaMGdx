@@ -1,0 +1,49 @@
+allprojects {
+
+    apply plugin: "java-library"
+
+
+    group = "com.JMGdx"
+    version = '1.0.0'
+
+    if(project.hasProperty("release")) {
+    } else {
+        version += "-SNAPSHOT"
+    }
+
+    ext {
+        appName = "jaMGdx"
+        gdxVersion = '1.9.10'
+    }
+
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        google()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://jitpack.io" }
+    }
+}
+project(":coreJm") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compile fileTree(dir: '../libs', include: '*.jar')
+    }
+}
+project(":desktop") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+        implementation project(":coreJm")
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    }
+}
