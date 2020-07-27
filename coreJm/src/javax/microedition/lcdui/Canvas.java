@@ -27,7 +27,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.util.SparseIntArray;
+import android.util.IntArray;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -106,11 +106,11 @@ public abstract class Canvas extends Displayable {
 	private static final int MOTOROLA_KEY_SOFT_LEFT = -21;
 	private static final int MOTOROLA_KEY_SOFT_RIGHT = -22;
 
-	private static SparseIntArray keyCodeToSiemensCode = new SparseIntArray();
-	private static SparseIntArray keyCodeToMotorolaCode = new SparseIntArray();
-	private static SparseIntArray androidToMIDP;
-	private static SparseIntArray keyCodeToGameAction = new SparseIntArray();
-	private static SparseIntArray gameActionToKeyCode = new SparseIntArray();
+	private static IntArray keyCodeToSiemensCode = new IntArray();
+	private static IntArray keyCodeToMotorolaCode = new IntArray();
+	private static IntArray androidToMIDP;
+	private static IntArray keyCodeToGameAction = new IntArray();
+	private static IntArray gameActionToKeyCode = new IntArray();
 	private static SparseArrayCompat<String> keyCodeToKeyName = new SparseArrayCompat<>();
 
 	static {
@@ -563,7 +563,7 @@ public abstract class Canvas extends Displayable {
 		Canvas.filter = filter;
 	}
 
-	public static void setKeyMapping(int layoutType, SparseIntArray intArray) {
+	public static void setKeyMapping(int layoutType, IntArray intArray) {
 		Canvas.layoutType = layoutType;
 		Canvas.androidToMIDP = intArray;
 		remapKeys();

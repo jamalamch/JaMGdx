@@ -18,7 +18,7 @@ package ru.playsoftware.j2meloader.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.SparseIntArray;
+import android.util.IntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,8 +40,8 @@ import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.config.ConfigActivity;
 
 public class KeyMapperActivity extends BaseActivity implements View.OnClickListener {
-	private static SparseIntArray idToCanvasKey = new SparseIntArray();
-	private static SparseIntArray androidToMIDP;
+	private static IntArray idToCanvasKey = new IntArray();
+	private static IntArray androidToMIDP;
 	private SharedPreferencesContainer params;
 
 	@Override

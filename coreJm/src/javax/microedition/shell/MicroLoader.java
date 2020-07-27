@@ -22,7 +22,7 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
-import android.util.SparseIntArray;
+import android.util.IntArray;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -226,7 +226,7 @@ public class MicroLoader {
 				System.setProperty("microedition.encoding", "ISO-8859-1");
 			}
 
-			SparseIntArray intArray = KeyMapper.getArrayPref(params);
+			IntArray intArray = KeyMapper.getArrayPref(params);
 			Displayable.setVirtualSize(screenWidth, screenHeight);
 			Canvas.setScale(screenScaleToFit, screenKeepAspectRatio, screenScaleRatio);
 			Canvas.setFilterBitmap(screenFilter);
