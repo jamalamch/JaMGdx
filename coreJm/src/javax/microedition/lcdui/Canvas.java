@@ -17,25 +17,12 @@
 
 package javax.microedition.lcdui;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import android.util.IntArray;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.IntArray;
+import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.IntMap;
 
 import javax.microedition.lcdui.event.CanvasEvent;
 import javax.microedition.lcdui.event.Event;
@@ -46,10 +33,6 @@ import javax.microedition.lcdui.overlay.Overlay;
 import javax.microedition.lcdui.overlay.OverlayView;
 import javax.microedition.lcdui.pointer.FixedKeyboard;
 import javax.microedition.util.ContextHolder;
-
-import androidx.annotation.NonNull;
-import androidx.collection.SparseArrayCompat;
-import ru.playsoftware.j2meloader.R;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class Canvas extends Displayable {
@@ -106,12 +89,12 @@ public abstract class Canvas extends Displayable {
 	private static final int MOTOROLA_KEY_SOFT_LEFT = -21;
 	private static final int MOTOROLA_KEY_SOFT_RIGHT = -22;
 
-	private static IntArray keyCodeToSiemensCode = new IntArray();
-	private static IntArray keyCodeToMotorolaCode = new IntArray();
-	private static IntArray androidToMIDP;
-	private static IntArray keyCodeToGameAction = new IntArray();
-	private static IntArray gameActionToKeyCode = new IntArray();
-	private static SparseArrayCompat<String> keyCodeToKeyName = new SparseArrayCompat<>();
+	private static IntIntMap keyCodeToSiemensCode = new IntIntMap();
+	private static IntIntMap keyCodeToMotorolaCode = new IntIntMap();
+	private static IntIntMap androidToMIDP;
+	private static IntIntMap keyCodeToGameAction = new IntIntMap();
+	private static IntIntMap gameActionToKeyCode = new IntIntMap();
+	private static IntMap keyCodeToKeyName = new IntMap<String>();
 
 	static {
 		mapKeyCode(KEY_NUM0, 0, "0");
@@ -237,7 +220,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public String getKeyName(int keyCode) {
-		String res = keyCodeToKeyName.get(keyCode);
+		String res = (String) keyCodeToKeyName.get(keyCode);
 		if (res != null) {
 			return res;
 		} else {
@@ -541,7 +524,7 @@ public abstract class Canvas extends Displayable {
 		}
 		displayWidth = ContextHolder.getDisplayWidth();
 		displayHeight = ContextHolder.getDisplayHeight();
-		Log.d("Canvas", "Constructor. w=" + displayWidth + " h=" + displayHeight);
+		Gdx.app.log("Canvas", "Constructor. w=" + displayWidth + " h=" + displayHeight);
 		if (forceFullscreen) {
 			setFullScreenMode(true);
 		} else {
@@ -563,7 +546,7 @@ public abstract class Canvas extends Displayable {
 		Canvas.filter = filter;
 	}
 
-	public static void setKeyMapping(int layoutType, IntArray intArray) {
+	public static void setKeyMapping(int layoutType, IntIntMap intArray) {
 		Canvas.layoutType = layoutType;
 		Canvas.androidToMIDP = intArray;
 		remapKeys();
@@ -575,7 +558,7 @@ public abstract class Canvas extends Displayable {
 
 	public static void setHardwareAcceleration(boolean hardwareAcceleration, boolean parallel) {
 		Canvas.hwaEnabled = hardwareAcceleration;
-		Canvas.hwaOldEnabled = hardwareAcceleration && Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+		Canvas.hwaOldEnabled = hardwareAcceleration;
 		Canvas.parallelRedraw = parallel;
 	}
 
@@ -863,7 +846,6 @@ public abstract class Canvas extends Displayable {
 		this.visible = visible;
 	}
 
-	@SuppressLint("NewApi")
 	private boolean repaintScreen() {
 		if (hwaOldEnabled) {
 			if (innerView != null) {

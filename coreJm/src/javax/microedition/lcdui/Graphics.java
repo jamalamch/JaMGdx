@@ -17,17 +17,8 @@
 
 package javax.microedition.lcdui;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.DashPathEffect;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.Region;
-import android.os.Build;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import javax.microedition.lcdui.game.Sprite;
 
@@ -44,11 +35,11 @@ public class Graphics {
 	public static final int DOTTED = 1;
 
 	private Canvas canvas;
-	private Bitmap canvasBitmap;
+	private BitmapFont canvasBitmap;
 
-	private Paint drawPaint = new Paint();
-	private Paint fillPaint = new Paint();
-	private Paint imagePaint = new Paint();
+	private ShapeRenderer drawPaint = new ShapeRenderer();
+	private ShapeRenderer fillPaint = new ShapeRenderer();
+	private ShapeRenderer imagePaint = new ShapeRenderer();
 
 	private int translateX;
 	private int translateY;
@@ -67,8 +58,8 @@ public class Graphics {
 	private Font font = Font.getDefaultFont();
 
 	public Graphics() {
-		drawPaint.setStyle(Paint.Style.STROKE);
-		fillPaint.setStyle(Paint.Style.FILL);
+		drawPaint.set(ShapeRenderer.ShapeType.Point);
+		fillPaint.set(ShapeRenderer.ShapeType.Filled);
 		setStrokeStyle(SOLID);
 		setAntiAlias(false);
 		setAntiAliasText(true);
@@ -91,7 +82,7 @@ public class Graphics {
 		setClip(0, 0, canvas.getWidth(), canvas.getHeight());
 	}
 
-	public void setCanvas(Canvas canvas, Bitmap canvasBitmap) {
+	public void setCanvas(Canvas canvas, BitmapFont canvasBitmap) {
 		if (canvas.getSaveCount() > 1) {
 			canvas.restoreToCount(1);
 		}

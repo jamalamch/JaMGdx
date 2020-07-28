@@ -32,8 +32,8 @@ public class KeyMapper {
 		container.apply();
 	}
 
-	public static IntArray getArray(String json) {
-		IntArray intArray = new IntArray();
+	public static IntIntMap getArray(String json) {
+		IntIntMap intArray = new IntIntMap();
 		if (json != null) {
 			JsonReader jsonArray = new JsonReader();
 			JsonValue jsonValue = jsonArray.parse(json);
@@ -47,7 +47,7 @@ public class KeyMapper {
 		return intArray;
 	}
 
-	public static IntArray getArrayPref(SharedPreferencesContainer container) {
+	public static IntIntMap getArrayPref(SharedPreferencesContainer container) {
 		return getArray(container.getString(PREF_KEY, null));
 	}
 
@@ -62,16 +62,16 @@ public class KeyMapper {
 		intDict.put(Input.Keys.NUM_7, Canvas.KEY_NUM7);
 		intDict.put(Input.Keys.NUM_8, Canvas.KEY_NUM8);
 		intDict.put(Input.Keys.NUM_9, Canvas.KEY_NUM9);
-		intDict.put(Input.Keys.NUM_STAR, Canvas.KEY_STAR);
-		intDict.put(Input.Keys.NUM_POUND, Canvas.KEY_POUND);
-		intDict.put(Input.Keys.NUM_DPAD_UP, Canvas.KEY_UP);
-		intDict.put(Input.Keys.NUM_DPAD_DOWN, Canvas.KEY_DOWN);
-		intDict.put(Input.Keys.NUM_DPAD_LEFT, Canvas.KEY_LEFT);
-		intDict.put(Input.Keys.NUM_DPAD_RIGHT, Canvas.KEY_RIGHT);
-		intDict.put(Input.Keys.NUM_ENTER, Canvas.KEY_FIRE);
-		intDict.put(Input.Keys.NUM_SOFT_LEFT, Canvas.KEY_SOFT_LEFT);
-		intDict.put(Input.Keys.NUM_SOFT_RIGHT, Canvas.KEY_SOFT_RIGHT);
-		intDict.put(Input.Keys.NUM_CALL, Canvas.KEY_SEND);
-		intDict.put(Input.Keys.NUM_ENDCALL, Canvas.KEY_END);
+		intDict.put(Input.Keys.STAR, Canvas.KEY_STAR);
+		intDict.put(Input.Keys.POUND, Canvas.KEY_POUND);
+		intDict.put(Input.Keys.UP, Canvas.KEY_UP);
+		intDict.put(Input.Keys.DOWN, Canvas.KEY_DOWN);
+		intDict.put(Input.Keys.LEFT, Canvas.KEY_LEFT);
+		intDict.put(Input.Keys.RIGHT, Canvas.KEY_RIGHT);
+		intDict.put(Input.Keys.ENTER, Canvas.KEY_FIRE);
+		intDict.put(Input.Keys.SOFT_LEFT, Canvas.KEY_SOFT_LEFT);
+		intDict.put(Input.Keys.SOFT_RIGHT, Canvas.KEY_SOFT_RIGHT);
+		intDict.put(Input.Keys.CALL, Canvas.KEY_SEND);
+		intDict.put(Input.Keys.ENDCALL, Canvas.KEY_END);
 	}
 }
