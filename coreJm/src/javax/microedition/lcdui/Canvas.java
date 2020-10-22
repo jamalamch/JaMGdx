@@ -20,7 +20,6 @@ package javax.microedition.lcdui;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 
@@ -422,7 +421,7 @@ public abstract class Canvas extends Displayable {
 		@Override
 		public void process() {
 			synchronized (paintSync) {
-				if (surface == null || !surface.isValid() || !isShown()) {
+				if (!isShown()) {
 					return;
 				}
 				Graphics g = this.mGraphics;
@@ -481,9 +480,7 @@ public abstract class Canvas extends Displayable {
 
 	private PaintEvent paintEvent = new PaintEvent();
 
-	private LinearLayout layout;
 	private InnerView innerView;
-	private Surface surface;
 	private Graphics graphics = new Graphics();
 
 	protected int width, height;

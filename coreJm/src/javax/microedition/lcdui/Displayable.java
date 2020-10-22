@@ -17,32 +17,21 @@
  */
 
 package javax.microedition.lcdui;
-
-import android.content.Context;
-import android.text.TextUtils;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import java.util.ArrayList;
 
 import javax.microedition.lcdui.event.CommandActionEvent;
-import javax.microedition.lcdui.event.SimpleEvent;
 import javax.microedition.shell.MicroActivity;
 import javax.microedition.util.ContextHolder;
 
-public abstract class Displayable {
-	private String title;
-
+public abstract class Displayable extends Actor{
 	private ArrayList<Command> commands;
 	protected CommandListener listener;
 
 	private int tickermode;
 	private Ticker ticker;
-	private LinearLayout layout;
-	private TextView marquee;
 
 	protected static int virtualWidth;
 	protected static int virtualHeight;
@@ -50,24 +39,6 @@ public abstract class Displayable {
 	private static final int TICKER_NO_ACTION = 0;
 	private static final int TICKER_SHOW = 1;
 	private static final int TICKER_HIDE = 2;
-
-	private SimpleEvent msgSetTicker = new SimpleEvent() {
-		@Override
-		public void process() {
-			if (ticker != null) {
-				marquee.setText(ticker.getString());
-			}
-			switch (tickermode) {
-				case TICKER_SHOW:
-					layout.addView(marquee, 0);
-					break;
-				case TICKER_HIDE:
-					layout.removeView(marquee);
-					break;
-			}
-			tickermode = TICKER_NO_ACTION;
-		}
-	};
 
 	public Displayable() {
 		commands = new ArrayList<>();
@@ -92,53 +63,50 @@ public abstract class Displayable {
 	}
 
 	public void setTitle(String title) {
-		this.title = title;
-
-		MicroActivity activity = ContextHolder.getActivity();
-		if (isShown()) {
-			activity.runOnUiThread(() -> activity.setTitle(title));
-		}
+		this.setName(title);
+//		MicroActivity activity = ContextHolder.getActivity();
+//		if (isShown()) {
+//			activity.runOnUiThread(() -> activity.setTitle(title));
+//		}
 	}
 
 	public String getTitle() {
-		return title;
+		return getName();
 	}
 
 	public boolean isShown() {
-		MicroActivity activity = ContextHolder.getActivity();
-		if (activity != null) {
-			return activity.isVisible() && activity.getCurrent() == this;
-		}
-		return false;
+//		MicroActivity activity = ContextHolder.getActivity();
+//		if (activity != null) {
+//			return activity.isVisible() && activity.getCurrent() == this;
+//		}
+		return isShown();
 	}
 
-	public View getDisplayableView() {
-		if (layout == null) {
-			Context context = getParentActivity();
-
-			layout = new LinearLayout(context);
-			layout.setOrientation(LinearLayout.VERTICAL);
-			layout.setLayoutParams(new FrameLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-			marquee = new TextView(context);
-			marquee.setTextAppearance(context, android.R.style.TextAppearance_Medium);
-			marquee.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-			marquee.setSelected(true);
-			marquee.setSingleLine();
-
-			if (ticker != null) {
-				marquee.setText(ticker.getString());
-				layout.addView(marquee);
-			}
-		}
-
-		return layout;
+	public Stage getDisplayableView() {
+//		if (layout == null) {
+//			Context context = getParentActivity();
+//
+//			layout = new LinearLayout(context);
+//			layout.setOrientation(LinearLayout.VERTICAL);
+//			layout.setLayoutParams(new FrameLayout.LayoutParams(
+//					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+//
+//			marquee = new TextView(context);
+//			marquee.setTextAppearance(context, android.R.style.TextAppearance_Medium);
+//			marquee.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+//			marquee.setSelected(true);
+//			marquee.setSingleLine();
+//
+//			if (ticker != null) {
+//				marquee.setText(ticker.getString());
+//				layout.addView(marquee);
+//			}
+//		}
+		return getStage();
 	}
 
 	public void clearDisplayableView() {
-		layout = null;
-		marquee = null;
+		remove();
 	}
 
 	public void addCommand(Command cmd) {
@@ -172,16 +140,7 @@ public abstract class Displayable {
 		}
 	}
 
-	public int getWidth() {
-		return virtualWidth;
-	}
-
-	public int getHeight() {
-		return virtualHeight;
-	}
-
 	public void setTicker(Ticker newticker) {
-		if (layout != null) {
 			if (ticker == null && newticker != null) {
 				tickermode = TICKER_SHOW;
 			} else if (ticker != null && newticker == null) {
@@ -189,11 +148,6 @@ public abstract class Displayable {
 			}
 
 			ticker = newticker;
-
-			ViewHandler.postEvent(msgSetTicker);
-		} else {
-			ticker = newticker;
-		}
 	}
 
 	public Ticker getTicker() {
@@ -201,6 +155,7 @@ public abstract class Displayable {
 	}
 
 	public void sizeChanged(int w, int h) {
+		super.setSize(w,h);
 	}
 
 	public boolean menuItemSelected(int id) {

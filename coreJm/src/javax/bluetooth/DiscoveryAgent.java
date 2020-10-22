@@ -163,7 +163,7 @@ public class DiscoveryAgent {
 	}
 
 	private LinkedList<Transaction> transList = new LinkedList<>();
-	private HashSet<BluetoothDevice> discoveredList = new HashSet<>();
+	private HashSet<BluetoothDevice> discoveredList = new HashSet<BluetoothDevice>();
 
 	DiscoveryAgent() throws BluetoothStateException {
 		adapter = BluetoothAdapter.getDefaultAdapter();

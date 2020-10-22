@@ -16,25 +16,25 @@
 
 package javax.microedition.lcdui;
 
-import android.os.Handler;
-import android.os.Looper;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Timer;
 
 /**
  * Class for centrally creating and modifying View.
  * Needed, because Android does not allow to change the View from different threads.
  */
 public class ViewHandler {
-	private static Handler handler;
-
-	static {
-		handler = new Handler(Looper.getMainLooper());
-	}
-
 	public static void postEvent(Runnable event) {
-		handler.post(event);
+		Gdx.app.postRunnable(event);
 	}
 
 	public static void postDelayed(Runnable event, long delayMillis) {
-		handler.postDelayed(event, delayMillis);
+		Timer.schedule(new Timer.Task(){
+			@Override
+			public void run() {
+
+			}
+		}, delayMillis/1000);
 	}
 }

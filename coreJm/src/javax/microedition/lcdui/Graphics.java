@@ -138,14 +138,14 @@ public class Graphics {
 		setColorAlpha(color | 0xFF000000);
 	}
 
-	public void setColorAlpha(int color) {
-		drawPaint.setColor(color);
-		fillPaint.setColor(color);
+	public void setColorAlpha(int colorf) {
+		drawPaint.getColor().a=colorf/255;
+		fillPaint.getColor().a=colorf/255;
 	}
 
 	public void setColor(int r, int g, int b) {
-		drawPaint.setARGB(255, r, g, b);
-		fillPaint.setARGB(255, r, g, b);
+		drawPaint.setColor(255, r, g, b);
+		fillPaint.setColor(255, r, g, b);
 	}
 
 	public void setGrayScale(int value) {

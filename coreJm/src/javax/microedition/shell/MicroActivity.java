@@ -35,6 +35,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.utils.Align;
+import ja.mgdx.Assets;
+import ja.mgdx.JaMGDx;
 import ru.playsoftware.j2meloader.config.ConfigActivity;
 import ru.playsoftware.j2meloader.util.LogUtils;
 
@@ -58,7 +63,6 @@ public class MicroActivity extends ApplicationAdapter {
 		Preferences sp = Gdx.app.getPreferences(getApplicationContext());
 		//SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		setTheme(sp.getString("pref_theme", "light"));
-		super.create(savedInstanceState);
 		ContextHolder.setCurrentActivity(this);
 		setContentView(R.layout.activity_micro);
 		OverlayView overlayView = findViewById(R.id.vOverlay);
@@ -71,8 +75,7 @@ public class MicroActivity extends ApplicationAdapter {
 		if (wakelockEnabled) {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
-		Intent intent = getIntent();
-		String appName = intent.getStringExtra(ConfigActivity.MIDLET_NAME_KEY);
+		String appName = JaMGDx.getStringExtra(ConfigActivity.MIDLET_NAME_KEY);
 		microLoader = new MicroLoader(this, appName);
 		microLoader.init();
 		microLoader.applyConfiguration();
@@ -122,13 +125,13 @@ public class MicroActivity extends ApplicationAdapter {
 	private void setOrientation(int orientation) {
 		switch (orientation) {
 			case ORIENTATION_AUTO:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+				setRequestedOrientation(JaMGDx.ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 				break;
 			case ORIENTATION_PORTRAIT:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+				setRequestedOrientation(JaMGDx.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 				break;
 			case ORIENTATION_LANDSCAPE:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+				setRequestedOrientation(JaMGDx.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 				break;
 			case ORIENTATION_DEFAULT:
 			default:
@@ -140,18 +143,8 @@ public class MicroActivity extends ApplicationAdapter {
 
 	}
 
-	public static class ActivityInfo{
-		public static final int SCREEN_ORIENTATION_FULL_SENSOR = 0;
-		public static final int SCREEN_ORIENTATION_SENSOR_PORTRAIT = 1;
-		public static final int SCREEN_ORIENTATION_SENSOR_LANDSCAPE = 2;
-	}
-
 	private void setTheme(String theme) {
-		if (theme.equals("dark")) {
-			setTheme(R.style.AppTheme_NoActionBar);
-		} else {
-			setTheme(R.style.AppTheme_Light_NoActionBar);
-		}
+
 	}
 
 	private void loadMIDlet() throws Exception {
@@ -169,21 +162,42 @@ public class MicroActivity extends ApplicationAdapter {
 	}
 
 	private void showMidletDialog(String[] midletsNameArray, final String[] midletsClassArray) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
-				.setTitle(R.string.select_dialog_title)
-				.setItems(midletsNameArray, (d, n) -> MidletThread.create(microLoader, midletsClassArray[n]))
-				.setOnCancelListener(dialogInterface -> finish());
-		builder.show();
+//		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+//				.setTitle(R.string.select_dialog_title)
+//				.setItems(midletsNameArray, (d, n) -> MidletThread.create(microLoader, midletsClassArray[n]))
+//				.setOnCancelListener(dialogInterface -> finish());
+//		builder.show();
+		Dialog builderf = new Dialog(Assets.select_dialog_title, JaMGDx.skin){
+			@Override
+			protected void result(Object object) {
+				 MidletThread.create(microLoader, midletsClassArray[(int)object]);
+			}
+		};
+		for (int i = 0;i<midletsNameArray.length;i++)
+			builderf.button(midletsNameArray[i],midletsClassArray[i]);
+		builderf.pack();
+		builderf.setOrigin(Align.center);
 	}
 
 	void showErrorDialog(String message) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.error)
-				.setMessage(message)
-				.setPositiveButton(android.R.string.ok, (d, w) -> ContextHolder.notifyDestroyed());
-		builder.setOnCancelListener(dialogInterface -> ContextHolder.notifyDestroyed());
-		builder.show();
+//		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+//				.setIcon(android.R.drawable.ic_dialog_alert)
+//				.setTitle(R.string.error)
+//				.setMessage(message)
+//				.setPositiveButton(android.R.string.ok, (d, w) -> ContextHolder.notifyDestroyed());
+//		builder.setOnCancelListener(dialogInterface -> ContextHolder.notifyDestroyed());
+//		builder.show();
+		Dialog builderf = new Dialog(Assets.string_error, JaMGDx.skin){
+			@Override
+			protected void result(Object object) {
+				if((Boolean)object)
+					ContextHolder.notifyDestroyed();
+			}
+		};
+		builderf.button("YES",true);
+		builderf.button("NO",false);
+		builderf.pack();
+		builderf.setOrigin(Align.center);
 	}
 
 	private SimpleEvent msgSetCurrent = new SimpleEvent() {
@@ -261,8 +275,8 @@ public class MicroActivity extends ApplicationAdapter {
 	}
 
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.KEYCODE_MENU && event.getAction() == KeyEvent.ACTION_UP) {
+	public boolean dispatchKeyEvent(InputEvent event) {
+		if (event.getKeyCode() == Input.Keys.MENU && event.type == InputEvent.Type.keyUp) {
 			onKeyUp(event.getKeyCode(), event);
 			return true;
 		}
@@ -276,7 +290,7 @@ public class MicroActivity extends ApplicationAdapter {
 	}
 
 	@Override
-	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+	public boolean onKeyLongPress(int keyCode, InputEvent event) {
 		if (keyCode ==  Input.Keys.BACK) {
 			showExitConfirmation();
 			keyLongPressed = true;
@@ -285,7 +299,7 @@ public class MicroActivity extends ApplicationAdapter {
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
+	public boolean onKeyUp(int keyCode, InputEvent event) {
 		if ((keyCode == Input.Keys.BACK || keyCode == Input.Keys.MENU) && !keyLongPressed) {
 			openOptionsMenu();
 			return true;
@@ -347,35 +361,28 @@ public class MicroActivity extends ApplicationAdapter {
 	private void handleVkOptions(int id) {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		switch (id) {
-			case Id.action_layout_edit_mode:
+			case JaMGDx.Id.action_layout_edit_mode:
 				vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
 				Toast.makeText(this, R.string.layout_edit_mode,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case Id.action_layout_scale_mode:
+			case JaMGDx.Id.action_layout_scale_mode:
 				vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_SCALES);
 				Toast.makeText(this, R.string.layout_scale_mode,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case Id.action_layout_edit_finish:
+			case JaMGDx.Id.action_layout_edit_finish:
 				vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
 				Toast.makeText(this, R.string.layout_edit_finished,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case Id.action_layout_switch:
+			case JaMGDx.Id.action_layout_switch:
 				showSetLayoutDialog();
 				break;
-			case Id.action_hide_buttons:
+			case JaMGDx.Id.action_hide_buttons:
 				showHideButtonDialog();
 				break;
 		}
-	}
-	static public class Id{
-		public static final int action_layout_edit_mode =0;
-		public static final int action_layout_scale_mode = 1;
-		public static final int action_layout_edit_finish = 2;
-		public static final int action_layout_switch = 3;
-		public static final int action_hide_buttons = 4;
 	}
 	private void takeScreenshot() {
 		microLoader.takeScreenshot((Canvas) current)
