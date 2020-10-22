@@ -116,7 +116,6 @@ public interface L2CAPConnection extends Connection {
 	 * received; 0 if <code>inBuf</code> length is zero
 	 * @throws IOException            if an I/O error occurs or the connection has been
 	 *                                closed
-	 * @throws InterruptedIOException if the request timed out
 	 * @throws NullPointerException   if <code>inBuf</code> is <code>null</code>
 	 */
 	public int receive(byte[] inBuf) throws IOException;

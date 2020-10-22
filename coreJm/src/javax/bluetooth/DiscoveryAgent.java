@@ -33,7 +33,6 @@ import java.nio.ByteOrder;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.Set;
 
 import javax.microedition.util.ContextHolder;
 

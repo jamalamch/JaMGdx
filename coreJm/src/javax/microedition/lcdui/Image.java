@@ -20,7 +20,6 @@ package javax.microedition.lcdui;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.util.LruCache;
 
 import java.io.IOException;
 import java.io.InputStream;

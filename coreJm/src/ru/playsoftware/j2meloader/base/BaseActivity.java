@@ -15,31 +15,22 @@
  */
 
 package ru.playsoftware.j2meloader.base;
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 
-import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceManager;
-import ru.playsoftware.j2meloader.R;
-
-@SuppressLint("Registered")
-public class BaseActivity extends AppCompatActivity {
-
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+public class BaseActivity extends ApplicationAdapter {
+	public String Acivityname = "test";
+	public void create() {
+		Preferences preferences = Gdx.app.getPreferences(Acivityname);
 		String theme = preferences.getString("pref_theme", "light");
 		if (theme.equals("dark")) {
-			setTheme(R.style.AppTheme);
+			//setTheme(R.style.AppTheme);
 		} else {
-			setTheme(R.style.AppTheme_Light);
+			//setTheme(R.style.AppTheme_Light);
 		}
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setElevation(getResources().getDisplayMetrics().density * 2);
-		}
-		super.onCreate(savedInstanceState);
+//		if (getSupportActionBar() != null) {
+//			getSupportActionBar().setElevation(getResources().getDisplayMetrics().density * 2);
+//		}
 	}
 }

@@ -17,25 +17,6 @@
 
 package javax.microedition.shell;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.res.TypedArray;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.SubMenu;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
@@ -50,22 +31,14 @@ import javax.microedition.lcdui.overlay.OverlayView;
 import javax.microedition.lcdui.pointer.FixedKeyboard;
 import javax.microedition.lcdui.pointer.VirtualKeyboard;
 import javax.microedition.util.ContextHolder;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.preference.PreferenceManager;
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import ru.playsoftware.j2meloader.R;
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import ru.playsoftware.j2meloader.config.ConfigActivity;
 import ru.playsoftware.j2meloader.util.LogUtils;
 
-public class MicroActivity extends AppCompatActivity {
+public class MicroActivity extends ApplicationAdapter {
 	private static final int ORIENTATION_DEFAULT = 0;
 	private static final int ORIENTATION_AUTO = 1;
 	private static final int ORIENTATION_PORTRAIT = 2;
@@ -81,10 +54,11 @@ public class MicroActivity extends AppCompatActivity {
 	private MicroLoader microLoader;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	public void create() {
+		Preferences sp = Gdx.app.getPreferences(getApplicationContext());
+		//SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		setTheme(sp.getString("pref_theme", "light"));
-		super.onCreate(savedInstanceState);
+		super.create(savedInstanceState);
 		ContextHolder.setCurrentActivity(this);
 		setContentView(R.layout.activity_micro);
 		OverlayView overlayView = findViewById(R.id.vOverlay);
@@ -122,28 +96,29 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void resume() {
+		super.resume();
 		visible = true;
 		MidletThread.resumeApp();
 	}
 
 	@Override
-	public void onPause() {
+	public void pause() {
 		visible = false;
 		MidletThread.pauseApp();
-		super.onPause();
+		super.pause();
 	}
 
-	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
+		if (hasFocus  && current instanceof Canvas) {
 			hideSystemUI();
 		}
 	}
 
-	@SuppressLint("SourceLockedOrientationActivity")
+	private String getApplicationContext(){
+		return "appname";
+	}
+
 	private void setOrientation(int orientation) {
 		switch (orientation) {
 			case ORIENTATION_AUTO:
@@ -159,6 +134,16 @@ public class MicroActivity extends AppCompatActivity {
 			default:
 				break;
 		}
+	}
+
+	private void setRequestedOrientation(int id){
+
+	}
+
+	public static class ActivityInfo{
+		public static final int SCREEN_ORIENTATION_FULL_SENSOR = 0;
+		public static final int SCREEN_ORIENTATION_SENSOR_PORTRAIT = 1;
+		public static final int SCREEN_ORIENTATION_SENSOR_LANDSCAPE = 2;
 	}
 
 	private void setTheme(String theme) {
@@ -239,14 +224,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void hideSystemUI() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-			if (!statusBarEnabled) {
-				flags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-						| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_FULLSCREEN;
-			}
-			getWindow().getDecorView().setSystemUiVisibility(flags);
-		} else if (!statusBarEnabled) {
+		else if (!statusBarEnabled) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
@@ -274,12 +252,12 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showExitConfirmation() {
-		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-		alertBuilder.setTitle(R.string.CONFIRMATION_REQUIRED)
-				.setMessage(R.string.FORCE_CLOSE_CONFIRMATION)
-				.setPositiveButton(android.R.string.yes, (d, w) -> MidletThread.destroyApp())
-				.setNegativeButton(android.R.string.no, null);
-		alertBuilder.create().show();
+//		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+//		alertBuilder.setTitle(R.string.CONFIRMATION_REQUIRED)
+//				.setMessage(R.string.FORCE_CLOSE_CONFIRMATION)
+//				.setPositiveButton(android.R.string.yes, (d, w) -> MidletThread.destroyApp())
+//				.setNegativeButton(android.R.string.no, null);
+//		alertBuilder.create().show();
 	}
 
 	@Override
@@ -291,32 +269,28 @@ public class MicroActivity extends AppCompatActivity {
 		return super.dispatchKeyEvent(event);
 	}
 
-	@Override
 	public void openOptionsMenu() {
-		if (!actionBarEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
+		if (!actionBarEnabled  && current instanceof Canvas) {
 			showSystemUI();
 		}
-		super.openOptionsMenu();
 	}
 
 	@Override
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
+		if (keyCode ==  Input.Keys.BACK) {
 			showExitConfirmation();
 			keyLongPressed = true;
 			return true;
 		}
-		return super.onKeyLongPress(keyCode, event);
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU) && !keyLongPressed) {
+		if ((keyCode == Input.Keys.BACK || keyCode == Input.Keys.MENU) && !keyLongPressed) {
 			openOptionsMenu();
 			return true;
 		}
 		keyLongPressed = false;
-		return super.onKeyUp(keyCode, event);
 	}
 
 	@Override
@@ -373,31 +347,36 @@ public class MicroActivity extends AppCompatActivity {
 	private void handleVkOptions(int id) {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		switch (id) {
-			case R.id.action_layout_edit_mode:
+			case Id.action_layout_edit_mode:
 				vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
 				Toast.makeText(this, R.string.layout_edit_mode,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case R.id.action_layout_scale_mode:
+			case Id.action_layout_scale_mode:
 				vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_SCALES);
 				Toast.makeText(this, R.string.layout_scale_mode,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case R.id.action_layout_edit_finish:
+			case Id.action_layout_edit_finish:
 				vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
 				Toast.makeText(this, R.string.layout_edit_finished,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case R.id.action_layout_switch:
+			case Id.action_layout_switch:
 				showSetLayoutDialog();
 				break;
-			case R.id.action_hide_buttons:
+			case Id.action_hide_buttons:
 				showHideButtonDialog();
 				break;
 		}
 	}
-
-	@SuppressLint("CheckResult")
+	static public class Id{
+		public static final int action_layout_edit_mode =0;
+		public static final int action_layout_scale_mode = 1;
+		public static final int action_layout_edit_finish = 2;
+		public static final int action_layout_switch = 3;
+		public static final int action_hide_buttons = 4;
+	}
 	private void takeScreenshot() {
 		microLoader.takeScreenshot((Canvas) current)
 				.subscribeOn(Schedulers.computation())

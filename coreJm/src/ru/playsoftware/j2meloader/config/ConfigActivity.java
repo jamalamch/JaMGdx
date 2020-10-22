@@ -63,13 +63,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceManager;
+import com.badlogic.gdx.Gdx;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.base.BaseActivity;
 import ru.playsoftware.j2meloader.settings.KeyMapperActivity;
 import ru.playsoftware.j2meloader.util.FileUtils;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class ConfigActivity extends BaseActivity implements View.OnClickListener {
+public class ConfigActivity extends BaseActivity implements OnClickListener {
 
 	protected ScrollView rootContainer;
 	protected EditText tfScreenWidth;
@@ -122,7 +123,6 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 	private File keylayoutFile;
 	private File dataDir;
 	private SharedPreferencesContainer params;
-	private String appName;
 	private FragmentManager fragmentManager;
 	private boolean defaultConfig;
 	private Display display;
@@ -135,10 +135,9 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 	private ArrayAdapter<String> encodingAdapter;
 	private final ArrayList<String> charsets = new ArrayList<>(Charset.availableCharsets().keySet());
 
-	@SuppressLint({"StringFormatMatches", "StringFormatInvalid"})
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void create() {
+		super.create();
 		setContentView(R.layout.activity_config);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		Intent intent = getIntent();
@@ -146,17 +145,8 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		fragmentManager = getSupportFragmentManager();
 		defaultConfig = intent.getBooleanExtra(DEFAULT_CONFIG_KEY, false);
 		boolean showSettings;
-		if (defaultConfig) {
-			showSettings = true;
-			configDir = new File(Config.DEFAULT_CONFIG_DIR);
-		} else {
-			showSettings = intent.getBooleanExtra(SHOW_SETTINGS_KEY, false);
-			appName = intent.getDataString();
-			getSupportActionBar().setTitle(appName);
-			dataDir = new File(Config.DATA_DIR, appName);
-			dataDir.mkdirs();
-			configDir = new File(Config.CONFIGS_DIR, appName);
-		}
+		showSettings = true;
+		configDir = new File(Config.DEFAULT_CONFIG_DIR);
 		configDir.mkdirs();
 		loadKeylayout();
 
@@ -350,21 +340,21 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 	}
 
 	@Override
-	public void onPause() {
+	public void pause() {
 		saveParams();
-		super.onPause();
+		super.pause();
 	}
 
 	@Override
-	protected void onResume() {
+	protected void resume() {
 		loadParams();
-		super.onResume();
+		super.resume();
 	}
 
 	@Override
-	public void onConfigurationChanged(@NonNull Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		fillScreenSizePresets(display.getWidth(), display.getHeight());
+	public void resize(int width, int height) {
+		fillScreenSizePresets(width, height);
+		super.resize(width, height);
 	}
 
 	private void fillScreenSizePresets(int w, int h) {
@@ -389,11 +379,11 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		}
 
 		screenPresets.add(w + " x " + h);
-		Set<String> preset = PreferenceManager.getDefaultSharedPreferences(this)
-				.getStringSet("ResolutionsPreset", null);
-		if (preset != null) {
-			screenPresets.addAll(preset);
-		}
+//		Set<String> preset = Gdx.app.getPreferences(Acivityname)
+//				.getStringSet("ResolutionsPreset", null);
+//		if (preset != null) {
+//			screenPresets.addAll(preset);
+//		}
 		Collections.sort(screenPresets, (o1, o2) -> {
 			int sep1 = o1.indexOf(" x ");
 			int sep2 = o2.indexOf(" x ");
@@ -563,7 +553,6 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		}
 	}
 
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.config, menu);
@@ -574,7 +563,6 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_start:
@@ -640,7 +628,6 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		finish();
 	}
 
-	@SuppressLint("SetTextI18n")
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

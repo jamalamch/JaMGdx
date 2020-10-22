@@ -16,7 +16,6 @@
 
 package javax.bluetooth;
 
-import android.bluetooth.BluetoothClass;
 
 public class DeviceClass {
 	private static final int SERVICE_MASK = 0xffe000;
@@ -32,7 +31,7 @@ public class DeviceClass {
 	}
 
 	DeviceClass() {
-		this(BluetoothClass.Device.PHONE_CELLULAR | BluetoothClass.Service.TELEPHONY);
+		//this(BluetoothClass.Device.PHONE_CELLULAR | BluetoothClass.Service.TELEPHONY);
 	}
 
 	public int getServiceClasses() {

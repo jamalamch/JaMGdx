@@ -16,7 +16,7 @@
  */
 package javax.microedition.lcdui.event;
 
-import android.util.Log;
+import com.badlogic.gdx.Gdx;
 
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.util.ArrayStack;
@@ -114,7 +114,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.keyPressed(keyCode);
 				} catch (Exception e) {
-					Log.e(TAG, "keyPressed: ", e);
+					Gdx.app.log(TAG, "keyPressed: ", e);
 				}
 				break;
 
@@ -122,7 +122,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.keyRepeated(keyCode);
 				} catch (Exception e) {
-					Log.e(TAG, "keyRepeated: ", e);
+					Gdx.app.log(TAG, "keyRepeated: ", e);
 				}
 				break;
 
@@ -130,7 +130,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.keyReleased(keyCode);
 				} catch (Exception e) {
-					Log.e(TAG, "keyReleased: ", e);
+					Gdx.app.log(TAG, "keyReleased: ", e);
 				}
 				break;
 
@@ -138,7 +138,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.pointerPressed(pointer, x, y);
 				} catch (Exception e) {
-					Log.e(TAG, "pointerPressed: ", e);
+					Gdx.app.log(TAG, "pointerPressed: ", e);
 				}
 				break;
 
@@ -146,7 +146,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.pointerDragged(pointer, x, y);
 				} catch (Exception e) {
-					Log.e(TAG, "pointerDragged: ", e);
+					Gdx.app.log(TAG, "pointerDragged: ", e);
 				}
 				break;
 
@@ -154,7 +154,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.pointerReleased(pointer, x, y);
 				} catch (Exception e) {
-					Log.e(TAG, "pointerReleased: ", e);
+					Gdx.app.log(TAG, "pointerReleased: ", e);
 				}
 				break;
 
@@ -162,7 +162,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.showNotify();
 				} catch (Exception e) {
-					Log.e(TAG, "showNotify: ", e);
+					Gdx.app.log(TAG, "showNotify: ", e);
 				}
 				canvas.setVisible(true);
 				break;
@@ -172,7 +172,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.hideNotify();
 				} catch (Exception e) {
-					Log.e(TAG, "hideNotify: ", e);
+					Gdx.app.log(TAG, "hideNotify: ", e);
 				}
 				break;
 
@@ -180,7 +180,7 @@ public class CanvasEvent extends Event {
 				try {
 					canvas.sizeChanged(width, height);
 				} catch (Exception e) {
-					Log.e(TAG, "sizeChanged: ", e);
+					Gdx.app.log(TAG, "sizeChanged: ", e);
 				}
 				break;
 		}

@@ -50,8 +50,8 @@ public class MainActivity extends BaseActivity {
 	private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 0;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected void create() {
+		super.create();
 		setContentView(R.layout.activity_main);
 		Uri uri = getIntent().getData();
 		if (!isTaskRoot() && uri == null) {
