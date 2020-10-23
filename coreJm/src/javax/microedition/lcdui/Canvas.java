@@ -854,21 +854,14 @@ public abstract class Canvas extends Displayable {
 			return true;
 		}
 		try {
-			android.graphics.Canvas canvas = hwaEnabled ?
-					surface.lockHardwareCanvas() : surface.lockCanvas(null);
-			if (canvas == null) {
-				return true;
-			}
 			Graphics g = this.graphics;
-			g.setSurfaceCanvas(canvas);
 			g.clear(backgroundColor);
 			g.drawImage(offscreenCopy, onX, onY, onWidth, onHeight, filter, 255);
-			surface.unlockCanvasAndPost(canvas);
 			if (fpsCounter != null) {
 				fpsCounter.increment();
 			}
 		} catch (Exception e) {
-			Log.w(TAG, "repaintScreen: " + e);
+			Gdx.app.log(TAG, "repaintScreen: " + e);
 		}
 		return true;
 	}

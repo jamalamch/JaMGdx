@@ -17,102 +17,61 @@
 
 package javax.microedition.lcdui;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.microedition.lcdui.game.Sprite;
-import javax.microedition.util.ContextHolder;
-
-import ru.playsoftware.j2meloader.util.PNGUtils;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public class Image {
+	private Pixmap bitmap;
 
-	private static final int CACHE_SIZE = (int) (Runtime.getRuntime().maxMemory() >> 2); // 1/4 heap max
-	private static final LruCache<String, Bitmap> CACHE = new LruCache<String, Bitmap>(CACHE_SIZE) {
-		@Override
-		protected int sizeOf(String key, Bitmap value) {
-			return value.getByteCount();
-		}
-	};
-
-	private Bitmap bitmap;
-	private Canvas canvas;
-
-	public Image(Bitmap bitmap) {
+	public Image(Pixmap bitmap) {
 		if (bitmap == null) {
 			throw new NullPointerException();
 		}
-
 		this.bitmap = bitmap;
 	}
 
 	public static Image createImage(int width, int height, Image reuse) {
-		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-		if (reuse == null) {
+		Pixmap bitmap = new Pixmap(width, height, Pixmap.Format.RGB888);
+		if (reuse == null && reuse.bitmap == null) {
 			return new Image(bitmap);
 		}
-		reuse.getCanvas().setBitmap(bitmap);
-		reuse.copyPixels(reuse);
-		reuse.bitmap = bitmap;
+		bitmap.drawPixmap(reuse.bitmap, 0, 0);
 		return new Image(bitmap);
 	}
 
 	public static Image createTransparentImage(int width, int height) {
-		return new Image(Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888));
+		return new Image(new Pixmap(width, height, Pixmap.Format.RGB888));
 	}
 
-	public Bitmap getBitmap() {
+	public Pixmap getBitmap() {
 		return bitmap;
 	}
 
-	public Canvas getCanvas() {
-		if (canvas == null) {
-			canvas = new Canvas(bitmap);
-		}
-
-		return canvas;
-	}
-
 	public static Image createImage(int width, int height) {
-		Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-		b.eraseColor(Color.WHITE);
+		Pixmap b = new Pixmap(width, height, Pixmap.Format.RGB888);
+		b.setColor(Color.WHITE);
+		b.fill();
 		return new Image(b);
 	}
 
 	public static Image createImage(String resname) throws IOException {
-		synchronized (CACHE) {
-			Bitmap b = CACHE.get(resname);
-			if (b != null) {
-				return new Image(b);
-			}
-			InputStream stream = ContextHolder.getResourceAsStream(null, resname);
-			if (stream == null) {
-				throw new IOException("Can't read image: " + resname);
-			}
-			b = PNGUtils.getFixedBitmap(stream);
-			stream.close();
-			if (b == null) {
-				throw new IOException("Can't decode image: " + resname);
-			}
-			CACHE.put(resname, b);
+			Pixmap b = new Pixmap(Gdx.files.absolute(resname));
 			return new Image(b);
-		}
 	}
 
 	public static Image createImage(InputStream stream) throws IOException {
-		Bitmap b = PNGUtils.getFixedBitmap(stream);
-		if (b == null) {
-			throw new IOException("Can't decode image");
-		}
-		return new Image(b);
+		int l = stream.read();
+		byte[] pixmapb = new byte[l];
+		stream.read(pixmapb);
+		return createImage(pixmapb, 0, l);
 	}
 
 	public static Image createImage(byte[] imageData, int imageOffset, int imageLength) {
-		Bitmap b = PNGUtils.getFixedBitmap(imageData, imageOffset, imageLength);
+		Pixmap b = new Pixmap(imageData, imageOffset, imageLength);
 		if (b == null) {
 			throw new IllegalArgumentException("Can't decode image");
 		}
@@ -120,34 +79,45 @@ public class Image {
 	}
 
 	public static Image createImage(Image image, int x, int y, int width, int height, int transform) {
-		return new Image(Bitmap.createBitmap(image.bitmap, x, y, width, height, Sprite.transformMatrix(transform, width / 2f, height / 2f), false));
+		Image img = createTransparentImage(width,  height);
+		img.bitmap.drawPixmap(image.bitmap, x, y);
+		return img;
+//		return new Image(new Pixmap(image.bitmap, x, y, width, height, Sprite.transformMatrix(transform, width / 2f, height / 2f), false));
 	}
 
 	public static Image createImage(Image image) {
-		return new Image(Bitmap.createBitmap(image.bitmap));
+		Pixmap pixImg = new Pixmap(image.bitmap.getWidth(), image.bitmap.getHeight(), Pixmap.Format.RGB888);
+		pixImg.drawPixmap(image.bitmap, 0, 0);
+		return new Image(pixImg);
 	}
 
 	public static Image createRGBImage(int[] rgb, int width, int height, boolean processAlpha) {
+		Pixmap px = new Pixmap(width, height, Pixmap.Format.RGB888);
 		if (!processAlpha) {
 			final int length = width * height;
 			int[] rgbCopy = new int[length];
 			System.arraycopy(rgb, 0, rgbCopy, 0, length);
 			for (int i = 0; i < length; i++) {
 				rgbCopy[i] |= 0xFF << 24;
+				px.drawPixel(i%width,i/width,rgbCopy[i]);
 			}
-			rgb = rgbCopy;
 		}
-		return new Image(Bitmap.createBitmap(rgb, width, height, Bitmap.Config.ARGB_8888));
+		return new Image(px);
 	}
 
 	public Graphics getGraphics() {
 		Graphics graphics = new Graphics();
-		graphics.setCanvas(new Canvas(bitmap), bitmap);
+		graphics.setCanvas(new Canvas() {
+			@Override
+			public void paint(Graphics g) {
+
+			}
+		}, bitmap);
 		return graphics;
 	}
 
 	public boolean isMutable() {
-		return bitmap.isMutable();
+		return false;
 	}
 
 	public int getWidth() {
@@ -159,10 +129,6 @@ public class Image {
 	}
 
 	public void getRGB(int[] rgbData, int offset, int scanlength, int x, int y, int width, int height) {
-		bitmap.getPixels(rgbData, offset, scanlength, x, y, width, height);
-	}
 
-	void copyPixels(Image dst) {
-		dst.getCanvas().drawBitmap(bitmap, 0, 0, null);
 	}
 }

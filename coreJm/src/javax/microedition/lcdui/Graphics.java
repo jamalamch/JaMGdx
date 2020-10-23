@@ -17,8 +17,10 @@
 
 package javax.microedition.lcdui;
 
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.FloatArray;
 
 import javax.microedition.lcdui.game.Sprite;
 
@@ -35,11 +37,9 @@ public class Graphics {
 	public static final int DOTTED = 1;
 
 	private Canvas canvas;
-	private BitmapFont canvasBitmap;
+	private Pixmap canvasBitmap;
 
-	private ShapeRenderer drawPaint = new ShapeRenderer();
-	private ShapeRenderer fillPaint = new ShapeRenderer();
-	private ShapeRenderer imagePaint = new ShapeRenderer();
+	private ShapeRenderer drawRender = new ShapeRenderer();
 
 	private int translateX;
 	private int translateY;
@@ -47,7 +47,7 @@ public class Graphics {
 	private Rect clipRect = new Rect();
 	private Rect canvasRect = new Rect();
 	private RectF rectF = new RectF();
-	private Path path = new Path();
+	private FloatArray path = new FloatArray();
 
 	private DashPathEffect dpeffect = new DashPathEffect(new float[]{5, 5}, 0);
 	private int stroke;
@@ -58,8 +58,6 @@ public class Graphics {
 	private Font font = Font.getDefaultFont();
 
 	public Graphics() {
-		drawPaint.set(ShapeRenderer.ShapeType.Point);
-		fillPaint.set(ShapeRenderer.ShapeType.Filled);
 		setStrokeStyle(SOLID);
 		setAntiAlias(false);
 		setAntiAliasText(true);
@@ -82,7 +80,7 @@ public class Graphics {
 		setClip(0, 0, canvas.getWidth(), canvas.getHeight());
 	}
 
-	public void setCanvas(Canvas canvas, BitmapFont canvasBitmap) {
+	public void setCanvas(Canvas canvas, Pixmap canvasBitmap) {
 		if (canvas.getSaveCount() > 1) {
 			canvas.restoreToCount(1);
 		}
@@ -112,25 +110,26 @@ public class Graphics {
 
 	public void fillPolygon(int[] xPoints, int xOffset, int[] yPoints, int yOffset, int nPoints) {
 		if (nPoints > 0) {
-			Path path = computePath(xPoints, xOffset, yPoints, yOffset, nPoints);
-			canvas.drawPath(path, fillPaint);
+			FloatArray path = computePath(xPoints, xOffset, yPoints, yOffset, nPoints);
+			drawRender.set(ShapeRenderer.ShapeType.Filled);
+			drawRender.polygon(path.items);
 		}
 	}
 
 	public void drawPolygon(int[] xPoints, int xOffset, int[] yPoints, int yOffset, int nPoints) {
 		if (nPoints > 0) {
-			Path path = computePath(xPoints, xOffset, yPoints, yOffset, nPoints);
-			canvas.drawPath(path, drawPaint);
+			FloatArray path = computePath(xPoints, xOffset, yPoints, yOffset, nPoints);
+			drawRender.set(ShapeRenderer.ShapeType.Line);
+			drawRender.polygon(path.items);
 		}
 	}
 
-	private Path computePath(int[] xPoints, int xOffset, int[] yPoints, int yOffset, int nPoints) {
-		path.reset();
-		path.moveTo((float) xPoints[xOffset], (float) yPoints[yOffset]);
+	private FloatArray computePath(int[] xPoints, int xOffset, int[] yPoints, int yOffset, int nPoints) {
+		path.clear();
+		path.add((float) xPoints[xOffset], (float) yPoints[yOffset]);
 		for (int i = 1; i < nPoints; i++) {
-			path.lineTo((float) xPoints[xOffset + i], (float) yPoints[yOffset + i]);
+			path.add((float) xPoints[xOffset + i], (float) yPoints[yOffset + i]);
 		}
-		path.close();
 		return path;
 	}
 
@@ -139,13 +138,13 @@ public class Graphics {
 	}
 
 	public void setColorAlpha(int colorf) {
-		drawPaint.getColor().a=colorf/255;
 		fillPaint.getColor().a=colorf/255;
+		drawRender.getColor().a=colorf/255;
 	}
 
 	public void setColor(int r, int g, int b) {
-		drawPaint.setColor(255, r, g, b);
-		fillPaint.setColor(255, r, g, b);
+		fillPaint.setColor( r/255, g/255, b/255,1);
+		drawRender.setColor( r/255, g/255, b/255,1);
 	}
 
 	public void setGrayScale(int value) {
@@ -157,19 +156,19 @@ public class Graphics {
 	}
 
 	public int getRedComponent() {
-		return (drawPaint.getColor() >> 16) & 0xFF;
+		return (int)(drawRender.getColor().r*255);
 	}
 
 	public int getGreenComponent() {
-		return (drawPaint.getColor() >> 8) & 0xFF;
+		return (int)(drawRender.getColor().g*255);
 	}
 
 	public int getBlueComponent() {
-		return drawPaint.getColor() & 0xFF;
+		return (int)(drawRender.getColor().b*255);
 	}
 
 	public int getColor() {
-		return drawPaint.getColor();
+		return drawRender.getColor().toIntBits();
 	}
 
 	public int getDisplayColor(int color) {
@@ -179,11 +178,11 @@ public class Graphics {
 	public void setStrokeStyle(int stroke) {
 		this.stroke = stroke;
 
-		if (stroke == DOTTED) {
-			drawPaint.setPathEffect(dpeffect);
-		} else {
-			drawPaint.setPathEffect(null);
-		}
+//		if (stroke == DOTTED) {
+//			drawRender.set(ShapeRenderer.ShapeType.Line);
+//		} else {
+//			drawRender.setPathEffect(null);
+//		}
 	}
 
 	public int getStrokeStyle() {
@@ -192,9 +191,7 @@ public class Graphics {
 
 	private void setAntiAlias(boolean aa) {
 		drawAntiAlias = aa;
-
-		drawPaint.setAntiAlias(aa);
-		fillPaint.setAntiAlias(aa);
+//		drawRender.setAntiAlias(aa);
 	}
 
 	private void setAntiAliasText(boolean aa) {
@@ -206,7 +203,7 @@ public class Graphics {
 			font = Font.getDefaultFont();
 		}
 		this.font = font;
-		font.copyInto(drawPaint);
+//		font.copyInto(drawRender);
 	}
 
 	public Font getFont() {
@@ -272,7 +269,7 @@ public class Graphics {
 	}
 
 	public void clear(int color) {
-		canvas.drawColor(color, PorterDuff.Mode.SRC);
+//		canvas.drawColor(color, PorterDuff.Mode.SRC);
 	}
 
 	public void drawLine(int x1, int y1, int x2, int y2) {
@@ -287,24 +284,26 @@ public class Graphics {
 		} else {
 			y1++;
 		}
-
-		canvas.drawLine(x1, y1, x2, y2, drawPaint);
+		drawRender.line(x1, y1, x2, y2);
 	}
 
 	public void drawArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
 		if (width <= 0 || height <= 0) return;
-		rectF.set(x, y, x + width, y + height);
-		canvas.drawArc(rectF, -startAngle, -arcAngle, false, drawPaint);
+//		rectF.set(x, y, x + width, y + height);
+//		canvas.drawArc(rectF, -startAngle, -arcAngle, false, drawRender);
+		drawRender.rect(x,y,x,y,width,width,1,1,arcAngle);
 	}
 
 	public void drawArc(RectF oval, int startAngle, int arcAngle) {
-		canvas.drawArc(oval, -startAngle, -arcAngle, false, drawPaint);
+		canvas.drawArc(oval, -startAngle, -arcAngle, false, drawRender);
 	}
 
 	public void fillArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
 		if (width <= 0 || height <= 0) return;
-		rectF.set(x, y, x + width, y + height);
-		canvas.drawArc(rectF, -startAngle, -arcAngle, true, fillPaint);
+//		rectF.set(x, y, x + width, y + height);
+//		canvas.drawArc(rectF, -startAngle, -arcAngle, true, fillPaint);
+		drawRender.set(ShapeRenderer.ShapeType.Filled);
+		drawRender.arc(x,y,1,1,1);
 	}
 
 	public void fillArc(RectF oval, int startAngle, int arcAngle) {
@@ -313,28 +312,34 @@ public class Graphics {
 
 	public void drawRect(int x, int y, int width, int height) {
 		if (width <= 0 || height <= 0) return;
-		canvas.drawRect(x, y, x + width, y + height, drawPaint);
+		drawRender.rect(x, y, width, height);
 	}
 
 	public void fillRect(int x, int y, int width, int height) {
 		if (width <= 0 || height <= 0) return;
-		canvas.drawRect(x, y, x + width, y + height, fillPaint);
+		drawRender.set(ShapeRenderer.ShapeType.Filled);
+		drawRender.rect(x, y, width, height);
 	}
 
 	public void drawRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
 		if (width <= 0 || height <= 0) return;
-		rectF.set(x, y, x + width, y + height);
-		canvas.drawRoundRect(rectF, arcWidth, arcHeight, drawPaint);
+//		rectF.set(x, y, x + width, y + height);
+//		canvas.drawRoundRect(rectF, arcWidth, arcHeight, drawRender);
+		drawRender.rectLine(x, y, width, height, arcWidth);
 	}
 
 	public void drawRoundRect(RectF rect, int arcWidth, int arcHeight) {
-		canvas.drawRoundRect(rect, arcWidth, arcHeight, drawPaint);
+		canvas.drawRoundRect(rect, arcWidth, arcHeight, drawRender);
 	}
 
 	public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
 		if (width <= 0 || height <= 0) return;
 		rectF.set(x, y, x + width, y + height);
 		canvas.drawRoundRect(rectF, arcWidth, arcHeight, fillPaint);
+
+		drawRender.set(ShapeRenderer.ShapeType.Filled);
+		drawRender.rectLine(x, y, width, height, arcWidth);
+
 	}
 
 	public void fillRoundRect(RectF rect, int arcWidth, int arcHeight) {
@@ -359,26 +364,26 @@ public class Graphics {
 		}
 
 		if ((anchor & Graphics.LEFT) != 0) {
-			drawPaint.setTextAlign(Paint.Align.LEFT);
+			drawRender.setTextAlign(Paint.Align.LEFT);
 		} else if ((anchor & Graphics.RIGHT) != 0) {
-			drawPaint.setTextAlign(Paint.Align.RIGHT);
+			drawRender.setTextAlign(Paint.Align.RIGHT);
 		} else if ((anchor & Graphics.HCENTER) != 0) {
-			drawPaint.setTextAlign(Paint.Align.CENTER);
+			drawRender.setTextAlign(Paint.Align.CENTER);
 		}
 
 		if ((anchor & Graphics.TOP) != 0) {
-			y -= drawPaint.ascent();
+			y -= drawRender.ascent();
 		} else if ((anchor & Graphics.BOTTOM) != 0) {
-			y -= drawPaint.descent();
+			y -= drawRender.descent();
 		} else if ((anchor & Graphics.VCENTER) != 0) {
-			y -= drawPaint.ascent() + (drawPaint.descent() - drawPaint.ascent()) / 2;
+			y -= drawRender.ascent() + (drawRender.descent() - drawRender.ascent()) / 2;
 		}
 
-		drawPaint.setAntiAlias(textAntiAlias);
-		drawPaint.setStyle(Paint.Style.FILL);
-		canvas.drawText(text, x, y, drawPaint);
-		drawPaint.setStyle(Paint.Style.STROKE);
-		drawPaint.setAntiAlias(drawAntiAlias);
+		drawRender.setAntiAlias(textAntiAlias);
+		drawRender.setStyle(Paint.Style.FILL);
+		canvas.drawText(text, x, y, drawRender);
+		drawRender.setStyle(Paint.Style.STROKE);
+		drawRender.setAntiAlias(drawAntiAlias);
 	}
 
 	public void drawImage(Image image, int x, int y, int anchor) {
