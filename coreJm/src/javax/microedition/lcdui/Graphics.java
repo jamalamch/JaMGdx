@@ -19,6 +19,7 @@ package javax.microedition.lcdui;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.FloatArray;
 
@@ -40,6 +41,7 @@ public class Graphics {
 	private Pixmap canvasBitmap;
 
 	private ShapeRenderer drawRender = new ShapeRenderer();
+	private SpriteBatch spriteBatch = new SpriteBatch();
 
 	private int translateX;
 	private int translateY;
@@ -291,8 +293,7 @@ public class Graphics {
 		if (width <= 0 || height <= 0) return;
 //		rectF.set(x, y, x + width, y + height);
 //		canvas.drawArc(rectF, -startAngle, -arcAngle, false, drawRender);
-		drawRender.rect(x,y,x,y,width,width,1,1,arcAngle);
-	}
+		drawRender.arc(x,y,1,1,1,1);	}
 
 	public void drawArc(RectF oval, int startAngle, int arcAngle) {
 		canvas.drawArc(oval, -startAngle, -arcAngle, false, drawRender);
@@ -303,7 +304,7 @@ public class Graphics {
 //		rectF.set(x, y, x + width, y + height);
 //		canvas.drawArc(rectF, -startAngle, -arcAngle, true, fillPaint);
 		drawRender.set(ShapeRenderer.ShapeType.Filled);
-		drawRender.arc(x,y,1,1,1);
+		drawRender.arc(x,y,1,1,1,1);
 	}
 
 	public void fillArc(RectF oval, int startAngle, int arcAngle) {
@@ -334,8 +335,8 @@ public class Graphics {
 
 	public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
 		if (width <= 0 || height <= 0) return;
-		rectF.set(x, y, x + width, y + height);
-		canvas.drawRoundRect(rectF, arcWidth, arcHeight, fillPaint);
+//		rectF.set(x, y, x + width, y + height);
+//		canvas.drawRoundRect(rectF, arcWidth, arcHeight, fillPaint);
 
 		drawRender.set(ShapeRenderer.ShapeType.Filled);
 		drawRender.rectLine(x, y, width, height, arcWidth);

@@ -110,7 +110,7 @@ public class Image {
 		graphics.setCanvas(new Canvas() {
 			@Override
 			public void paint(Graphics g) {
-
+				g.drawImage();
 			}
 		}, bitmap);
 		return graphics;
