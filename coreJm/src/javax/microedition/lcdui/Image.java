@@ -23,33 +23,43 @@ import java.io.InputStream;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 
 public class Image {
 	private Pixmap bitmap;
+	private Texture texture;
+
+	public Texture getTexture() {
+		return texture;
+	}
+	public Pixmap getBitmap() {
+		return bitmap;
+	}
 
 	public Image(Pixmap bitmap) {
 		if (bitmap == null) {
 			throw new NullPointerException();
 		}
 		this.bitmap = bitmap;
+		this.texture = new Texture(bitmap);
 	}
 
 	public static Image createImage(int width, int height, Image reuse) {
 		Pixmap bitmap = new Pixmap(width, height, Pixmap.Format.RGB888);
-		if (reuse == null && reuse.bitmap == null) {
-			return new Image(bitmap);
+		if (reuse == null) {
+			reuse = new Image(bitmap);
+		}else {
+			reuse.texture = new Texture(bitmap);
+			reuse.bitmap = bitmap;
 		}
-		bitmap.drawPixmap(reuse.bitmap, 0, 0);
-		return new Image(bitmap);
+		return reuse;
 	}
 
 	public static Image createTransparentImage(int width, int height) {
 		return new Image(new Pixmap(width, height, Pixmap.Format.RGB888));
 	}
 
-	public Pixmap getBitmap() {
-		return bitmap;
-	}
+
 
 	public static Image createImage(int width, int height) {
 		Pixmap b = new Pixmap(width, height, Pixmap.Format.RGB888);
@@ -59,8 +69,8 @@ public class Image {
 	}
 
 	public static Image createImage(String resname) throws IOException {
-			Pixmap b = new Pixmap(Gdx.files.absolute(resname));
-			return new Image(b);
+		Pixmap b = new Pixmap(Gdx.files.absolute(resname));
+		return new Image(b);
 	}
 
 	public static Image createImage(InputStream stream) throws IOException {
@@ -80,39 +90,44 @@ public class Image {
 
 	public static Image createImage(Image image, int x, int y, int width, int height, int transform) {
 		Image img = createTransparentImage(width,  height);
-		img.bitmap.drawPixmap(image.bitmap, x, y);
 		return img;
-//		return new Image(new Pixmap(image.bitmap, x, y, width, height, Sprite.transformMatrix(transform, width / 2f, height / 2f), false));
 	}
 
 	public static Image createImage(Image image) {
 		Pixmap pixImg = new Pixmap(image.bitmap.getWidth(), image.bitmap.getHeight(), Pixmap.Format.RGB888);
-		pixImg.drawPixmap(image.bitmap, 0, 0);
 		return new Image(pixImg);
 	}
 
 	public static Image createRGBImage(int[] rgb, int width, int height, boolean processAlpha) {
+		return new Image(createRGBIPixmap(rgb, 0,width, height, processAlpha));
+	}
+
+	public static Pixmap createRGBIPixmap(int[] rgb,int offset, int width, int height, boolean processAlpha){
 		Pixmap px = new Pixmap(width, height, Pixmap.Format.RGB888);
 		if (!processAlpha) {
 			final int length = width * height;
 			int[] rgbCopy = new int[length];
 			System.arraycopy(rgb, 0, rgbCopy, 0, length);
-			for (int i = 0; i < length; i++) {
+			for (int i = offset; i < length; i++) {
 				rgbCopy[i] |= 0xFF << 24;
 				px.drawPixel(i%width,i/width,rgbCopy[i]);
 			}
+		}else{
+			for (int i = offset; i < rgb.length; i++) {
+				px.drawPixel(i%width,i/width,rgb[i]);
+			}
 		}
-		return new Image(px);
+		return px;
 	}
 
 	public Graphics getGraphics() {
 		Graphics graphics = new Graphics();
-		graphics.setCanvas(new Canvas() {
-			@Override
-			public void paint(Graphics g) {
-				g.drawImage();
-			}
-		}, bitmap);
+//		graphics.setCanvas(new Canvas() {
+//			@Override
+//			public void paint(Graphics g) {
+//				g.drawImage(this,getX(),getY(),0);
+//			}
+//		}, bitmap);
 		return graphics;
 	}
 
@@ -129,6 +144,8 @@ public class Image {
 	}
 
 	public void getRGB(int[] rgbData, int offset, int scanlength, int x, int y, int width, int height) {
-
+	}
+	public void copyPixels(Image image){
+		this.bitmap.drawPixmap(image.bitmap,0,0);
 	}
 }

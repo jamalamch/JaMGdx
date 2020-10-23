@@ -17,10 +17,8 @@
 
 package javax.microedition.lcdui;
 
-import android.content.res.AssetManager;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.util.TypedValue;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import ja.mgdx.JaMGDx;
 
 import java.util.Arrays;
 
@@ -40,18 +38,9 @@ public class Font {
 	public static final int STYLE_PLAIN = 0;
 	public static final int STYLE_UNDERLINED = 4;
 
-	private static final int FONT_COUNT = 3 * 3 * (1 << 3);
 	private static final int SIZE_KEYBOARD = 22;
-	private static Font[] fonts = new Font[FONT_COUNT];
 
-	private static boolean applyDimensions = true;
 	private static float[] sizes = new float[]{18, 22, 26};
-
-	public static void setApplyDimensions(boolean flag) {
-		applyDimensions = flag;
-
-		Arrays.fill(fonts, null);
-	}
 
 	public static void setSize(int size, float value) {
 		switch (size) {
@@ -70,37 +59,37 @@ public class Font {
 			default:
 				return;
 		}
-
-		Arrays.fill(fonts, null);
 	}
 
-	private Paint paint;
-	private int face, style, size;
+	public BitmapFont getPaint() {
+		return paint;
+	}
 
-	public Font(Typeface face, int style, float size, boolean underline) {
-		if (applyDimensions) {
-			size = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size,
-					ContextHolder.getAppContext().getResources().getDisplayMetrics());
-		}
+	private BitmapFont paint;
+	private int face, style ,size;
 
-		paint = new Paint();
-
-		paint.setTypeface(Typeface.create(face, style));
-		paint.setUnderlineText(underline);
-
-		paint.setTextSize(size);                                             // at first, just set the size (no matter what is put here)
-		paint.setTextSize(size * size / (paint.descent() - paint.ascent())); // and now we set the size equal to the given one (in pixels)
+	public Font(BitmapFont paint,int face, int style ,int size, boolean underline) {
+		this.paint =paint;
+		this.style = style;
+		this.face = face;
+		this.size = size;
+//		paint.setTypeface(Typeface.create(face, style));
+//		paint.setUnderlineText(underline);
+//
+//		paint.setTextSize(size);                                             // at first, just set the size (no matter what is put here)
+//		paint.setTextSize(size * size / (paint.descent() - paint.ascent())); // and now we set the size equal to the given one (in pixels)
 	}
 
 	// Font for keyboard
 	public Font() {
-		AssetManager manager = ContextHolder.getAppContext().getAssets();
-		Typeface typeface = Typeface.createFromAsset(manager, "Roboto-Regular.ttf");
-		paint = new Paint();
-		paint.setTypeface(typeface);
-		float size = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, SIZE_KEYBOARD,
-				ContextHolder.getAppContext().getResources().getDisplayMetrics());
-		paint.setTextSize(size);
+//		AssetManager manager = ContextHolder.getAppContext().getAssets();
+//		Typeface typeface = Typeface.createFromAsset(manager, "Roboto-Regular.ttf");
+//		paint.setTypeface(typeface);
+//		float size = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, SIZE_KEYBOARD,
+//				ContextHolder.getAppContext().getResources().getDisplayMetrics());
+//		paint.setTextSize(size);
+		paint = new BitmapFont();
+		paint.getData().scale(SIZE_KEYBOARD/14);
 	}
 
 	public static Font getFont(int fontSpecifier) {
@@ -108,39 +97,35 @@ public class Font {
 	}
 
 	public static Font getFont(int face, int style, int size) {
-		int index = getFontIndex(face, style, size);
 
-		if (fonts[index] == null) {
-			Typeface typeface;
-			int tfstyle = Typeface.NORMAL;
+			BitmapFont typeface;
 			boolean underline;
-			float fsize;
 
 			switch (face) {
 				case FACE_MONOSPACE:
-					typeface = Typeface.MONOSPACE;
+					typeface = JaMGDx.skin.getFont("FACE_MONOSPACE");
 					break;
 
 				case FACE_PROPORTIONAL:
-					typeface = Typeface.SANS_SERIF;
+					typeface = JaMGDx.skin.getFont("FACE_PROPORTIONAL");
 					break;
 
 				default:
 				case FACE_SYSTEM:
-					typeface = Typeface.DEFAULT;
+					typeface = JaMGDx.skin.getFont("default-font");
 					break;
 			}
 
 			if ((style & STYLE_BOLD) != 0) {
-				tfstyle |= Typeface.BOLD;
+
 			}
 
 			if ((style & STYLE_ITALIC) != 0) {
-				tfstyle |= Typeface.ITALIC;
+
 			}
 
 			underline = (style & STYLE_UNDERLINED) != 0;
-
+			float fsize;
 			switch (size) {
 				case SIZE_SMALL:
 					fsize = sizes[0];
@@ -156,32 +141,21 @@ public class Font {
 					break;
 			}
 
-			fonts[index] = new Font(typeface, tfstyle, fsize, underline);
+			Font font = new Font(typeface, face, style, size, underline);
+			font.setTextSize(fsize);
 
-			fonts[index].face = face;
-			fonts[index].style = style;
-			fonts[index].size = size;
-		}
-
-		return fonts[index];
+		return font;
 	}
 
 	public static Font getDefaultFont() {
 		return getFont(FACE_SYSTEM, STYLE_PLAIN, SIZE_MEDIUM);
 	}
 
-	public void copyInto(Paint target) {
-		target.setTypeface(paint.getTypeface());
-		target.setUnderlineText(paint.isUnderlineText());
-		target.setTextSize(paint.getTextSize());
-	}
-
-	public Typeface getTypeface() {
-		return paint.getTypeface();
-	}
-
 	public float getTextSize() {
-		return paint.getTextSize();
+		return paint.getData().xHeight;
+	}
+	public void setTextSize(float size) {
+		paint.getData().scale(size/paint.getXHeight());
 	}
 
 	public int getFace() {
@@ -196,96 +170,31 @@ public class Font {
 		return size;
 	}
 
-	public boolean isUnderlined() {
-		return paint.isUnderlineText();
-	}
-
 	public int getHeight() {
-		return (int) Math.ceil(paint.descent() - paint.ascent());
+		return (int)paint.getXHeight();
 	}
 
 	public int getBaselinePosition() {
-		return (int) Math.ceil(-paint.ascent());
+		return (int)paint.getData().padBottom;
 	}
 
 	public int charWidth(char c) {
-		return (int) Math.ceil(paint.measureText(new char[]{c}, 0, 1));
+		return paint.getData().getGlyph(c).width;
 	}
 
 	public int charsWidth(char[] ch, int offset, int length) {
-		return (int) Math.ceil(paint.measureText(ch, offset, length));
+		int charsWidth = 0;
+		for(int i = offset;i < length; i++)
+			charsWidth += charWidth(ch[i]);
+		return charsWidth;
 	}
 
 	public int stringWidth(String text) {
-		return (int) Math.ceil(paint.measureText(text));
+		return charsWidth(text.toCharArray(),0,text.length());
 	}
 
 	public int substringWidth(String str, int i, int i2) {
-		return (int) paint.measureText(str, i, i + i2);
-	}
-
-	public static int getFontIndex(int face, int style, int size) {
-		switch (face) {
-			case FACE_MONOSPACE:
-				face = 0;
-				break;
-
-			case FACE_PROPORTIONAL:
-				face = 1;
-				break;
-
-			case FACE_SYSTEM:
-				face = 2;
-				break;
-		}
-
-		switch (size) {
-			case SIZE_SMALL:
-				size = 0;
-				break;
-
-			case SIZE_MEDIUM:
-				size = 1;
-				break;
-
-			case SIZE_LARGE:
-				size = 2;
-				break;
-		}
-
-		return ((face * 3 + size) << 3) + style;
-	}
-
-	public static int getFontFace(int index) {
-		index = (index >>> 3) / 3;
-
-		switch (index) {
-			case 0:
-				return FACE_MONOSPACE;
-
-			case 1:
-				return FACE_PROPORTIONAL;
-
-			case 2:
-			default:
-				return FACE_SYSTEM;
-		}
-	}
-
-	public static int getFontSize(int index) {
-		index = (index >>> 3) % 3;
-
-		switch (index) {
-			case 0:
-				return SIZE_SMALL;
-
-			case 1:
-			default:
-				return SIZE_MEDIUM;
-
-			case 2:
-				return SIZE_LARGE;
-		}
+		return stringWidth(str.substring(i,i2));
 	}
 
 	public static int getFontStyle(int index) {
@@ -298,6 +207,10 @@ public class Font {
 
 	public boolean isPlain() {
 		return style == STYLE_PLAIN;
+	}
+
+	public boolean isUnderlined() {
+		return style == STYLE_UNDERLINED;
 	}
 
 	public boolean isItalic() {

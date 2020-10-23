@@ -385,26 +385,26 @@ public class MicroActivity extends ApplicationAdapter {
 		}
 	}
 	private void takeScreenshot() {
-		microLoader.takeScreenshot((Canvas) current)
-				.subscribeOn(Schedulers.computation())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(new SingleObserver<String>() {
-					@Override
-					public void onSubscribe(Disposable d) {
-					}
-
-					@Override
-					public void onSuccess(String s) {
-						Toast.makeText(MicroActivity.this, getString(R.string.screenshot_saved)
-								+ " " + s, Toast.LENGTH_LONG).show();
-					}
-
-					@Override
-					public void onError(Throwable e) {
-						e.printStackTrace();
-						Toast.makeText(MicroActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-					}
-				});
+		microLoader.takeScreenshot((Canvas) current);
+//				.subscribeOn(Schedulers.computation())
+//				.observeOn(AndroidSchedulers.mainThread())
+//				.subscribe(new SingleObserver<String>() {
+//					@Override
+//					public void onSubscribe(Disposable d) {
+//					}
+//
+//					@Override
+//					public void onSuccess(String s) {
+//						Toast.makeText(MicroActivity.this, getString(R.string.screenshot_saved)
+//								+ " " + s, Toast.LENGTH_LONG).show();
+//					}
+//
+//					@Override
+//					public void onError(Throwable e) {
+//						e.printStackTrace();
+//						Toast.makeText(MicroActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+//					}
+//				});
 	}
 
 	private void saveLog() {

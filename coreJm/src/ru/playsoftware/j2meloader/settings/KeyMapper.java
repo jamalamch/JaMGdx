@@ -39,7 +39,7 @@ public class KeyMapper {
 			JsonValue jsonValue = jsonArray.parse(json);
 			for (int i = 0; i < jsonValue.size; i++) {
 				JsonValue item = jsonValue.get(i);
-				intArray.add(item.getInt("key"), item.getInt("value"));
+				intArray.put(item.getInt("key"), item.getInt("value"));
 			}
 		} else {
 			initArray(intArray);

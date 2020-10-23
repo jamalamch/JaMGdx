@@ -17,13 +17,16 @@
 
 package javax.microedition.lcdui;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.FloatArray;
 
-import javax.microedition.lcdui.game.Sprite;
+
 
 public class Graphics {
 	public static final int HCENTER = 1;
@@ -42,27 +45,18 @@ public class Graphics {
 
 	private ShapeRenderer drawRender = new ShapeRenderer();
 	private SpriteBatch spriteBatch = new SpriteBatch();
-
+	private Rectangle clipRect = new Rectangle();
 	private int translateX;
 	private int translateY;
 
-	private Rect clipRect = new Rect();
-	private Rect canvasRect = new Rect();
-	private RectF rectF = new RectF();
 	private FloatArray path = new FloatArray();
 
-	private DashPathEffect dpeffect = new DashPathEffect(new float[]{5, 5}, 0);
 	private int stroke;
 
-	private boolean drawAntiAlias;
-	private boolean textAntiAlias;
-
-	private Font font = Font.getDefaultFont();
+	private Font font = new Font();
 
 	public Graphics() {
 		setStrokeStyle(SOLID);
-		setAntiAlias(false);
-		setAntiAliasText(true);
 	}
 
 	public void reset() {
@@ -76,6 +70,7 @@ public class Graphics {
 	private void resetTranslation() {
 		translateX = 0;
 		translateY = 0;
+		spriteBatch.getTransformMatrix().setTranslation(0,0,0);
 	}
 
 	private void resetClip() {
@@ -83,22 +78,20 @@ public class Graphics {
 	}
 
 	public void setCanvas(Canvas canvas, Pixmap canvasBitmap) {
-		if (canvas.getSaveCount() > 1) {
-			canvas.restoreToCount(1);
-		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			canvas.save();
-		}
-		canvas.save();
-		canvas.getClipBounds(canvasRect);
-		clipRect.set(canvasRect);
+//		if (canvas.getSaveCount() > 1) {
+//			canvas.restoreToCount(1);
+//		}
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//			canvas.save();
+//		}
+//		canvas.save();
+		clipRect.set(canvas.getRectangle());
 		this.canvas = canvas;
 		this.canvasBitmap = canvasBitmap;
 	}
 
 	public void setSurfaceCanvas(Canvas canvas) {
-		canvas.getClipBounds(canvasRect);
-		clipRect.set(canvasRect);
+		clipRect.set(canvas.getRectangle());
 		this.canvas = canvas;
 	}
 
@@ -139,13 +132,11 @@ public class Graphics {
 		setColorAlpha(color | 0xFF000000);
 	}
 
-	public void setColorAlpha(int colorf) {
-		fillPaint.getColor().a=colorf/255;
-		drawRender.getColor().a=colorf/255;
+	public void setColorAlpha(int colorAlpha) {
+		drawRender.getColor().set(colorAlpha);
 	}
 
 	public void setColor(int r, int g, int b) {
-		fillPaint.setColor( r/255, g/255, b/255,1);
 		drawRender.setColor( r/255, g/255, b/255,1);
 	}
 
@@ -191,15 +182,6 @@ public class Graphics {
 		return stroke;
 	}
 
-	private void setAntiAlias(boolean aa) {
-		drawAntiAlias = aa;
-//		drawRender.setAntiAlias(aa);
-	}
-
-	private void setAntiAliasText(boolean aa) {
-		textAntiAlias = aa;
-	}
-
 	public void setFont(Font font) {
 		if (font == null) {
 			font = Font.getDefaultFont();
@@ -213,53 +195,39 @@ public class Graphics {
 	}
 
 	public void setClip(int x, int y, int width, int height) {
-		clipRect.set(x, y, x + width, y + height);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			canvas.restore();
-			canvas.save();
-			canvas.translate(translateX, translateY);
-			canvas.clipRect(clipRect);
-		} else {
-			canvas.clipRect(clipRect, Region.Op.REPLACE);
-		}
-		// Calculate the clip
-		clipRect.offset(translateX, translateY);
-		clipRect.sort();
-		if (!clipRect.intersect(canvasRect)) {
-			clipRect.set(translateX, translateY, translateX, translateY);
-		}
+		clipRect.set(x, y, width, height);
+		spriteBatch.getProjectionMatrix().setToOrtho2D(x , y, width, height);
+		spriteBatch.getTransformMatrix().setTranslation(translateX, translateY,0);
+		drawRender.getProjectionMatrix().setToOrtho2D(x , y, width, height);
 	}
 
 	public void clipRect(int x, int y, int width, int height) {
-		canvas.clipRect(x, y, x + width, y + height);
 		// Calculate the clip
-		clipRect.offset(-translateX, -translateY);
-		clipRect.sort();
-		clipRect.intersect(x, y, x + width, y + height);
-		clipRect.offset(translateX, translateY);
+		clipRect.set(x, y, width, height);
+		canvas.setBounds(x, y,  width,  height);
 	}
 
 	public int getClipX() {
-		return clipRect.left - translateX;
+		return (int)clipRect.getX();
 	}
 
 	public int getClipY() {
-		return clipRect.top - translateY;
+		return (int)clipRect.getY();
 	}
 
 	public int getClipWidth() {
-		return clipRect.width();
+		return (int)clipRect.getWidth();
 	}
 
 	public int getClipHeight() {
-		return clipRect.height();
+		return (int)clipRect.getHeight();
 	}
 
 	public void translate(int dx, int dy) {
 		translateX += dx;
 		translateY += dy;
 
-		canvas.translate(dx, dy);
+		spriteBatch.getProjectionMatrix().setTranslation(translateX, translateY,-1);
 	}
 
 	public int getTranslateX() {
@@ -293,10 +261,7 @@ public class Graphics {
 		if (width <= 0 || height <= 0) return;
 //		rectF.set(x, y, x + width, y + height);
 //		canvas.drawArc(rectF, -startAngle, -arcAngle, false, drawRender);
-		drawRender.arc(x,y,1,1,1,1);	}
-
-	public void drawArc(RectF oval, int startAngle, int arcAngle) {
-		canvas.drawArc(oval, -startAngle, -arcAngle, false, drawRender);
+		drawRender.arc(x,y,1,1,1,1);
 	}
 
 	public void fillArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
@@ -305,10 +270,6 @@ public class Graphics {
 //		canvas.drawArc(rectF, -startAngle, -arcAngle, true, fillPaint);
 		drawRender.set(ShapeRenderer.ShapeType.Filled);
 		drawRender.arc(x,y,1,1,1,1);
-	}
-
-	public void fillArc(RectF oval, int startAngle, int arcAngle) {
-		canvas.drawArc(oval, -startAngle, -arcAngle, true, fillPaint);
 	}
 
 	public void drawRect(int x, int y, int width, int height) {
@@ -329,9 +290,6 @@ public class Graphics {
 		drawRender.rectLine(x, y, width, height, arcWidth);
 	}
 
-	public void drawRoundRect(RectF rect, int arcWidth, int arcHeight) {
-		canvas.drawRoundRect(rect, arcWidth, arcHeight, drawRender);
-	}
 
 	public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
 		if (width <= 0 || height <= 0) return;
@@ -341,10 +299,6 @@ public class Graphics {
 		drawRender.set(ShapeRenderer.ShapeType.Filled);
 		drawRender.rectLine(x, y, width, height, arcWidth);
 
-	}
-
-	public void fillRoundRect(RectF rect, int arcWidth, int arcHeight) {
-		canvas.drawRoundRect(rect, arcWidth, arcHeight, fillPaint);
 	}
 
 	public void fillTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
@@ -365,26 +319,20 @@ public class Graphics {
 		}
 
 		if ((anchor & Graphics.LEFT) != 0) {
-			drawRender.setTextAlign(Paint.Align.LEFT);
 		} else if ((anchor & Graphics.RIGHT) != 0) {
-			drawRender.setTextAlign(Paint.Align.RIGHT);
+			x += clipRect.width;
 		} else if ((anchor & Graphics.HCENTER) != 0) {
-			drawRender.setTextAlign(Paint.Align.CENTER);
+			x += clipRect.width/2;
 		}
 
 		if ((anchor & Graphics.TOP) != 0) {
-			y -= drawRender.ascent();
+			y += clipRect.height;
 		} else if ((anchor & Graphics.BOTTOM) != 0) {
-			y -= drawRender.descent();
 		} else if ((anchor & Graphics.VCENTER) != 0) {
-			y -= drawRender.ascent() + (drawRender.descent() - drawRender.ascent()) / 2;
+			y += clipRect.height/2;
 		}
 
-		drawRender.setAntiAlias(textAntiAlias);
-		drawRender.setStyle(Paint.Style.FILL);
-		canvas.drawText(text, x, y, drawRender);
-		drawRender.setStyle(Paint.Style.STROKE);
-		drawRender.setAntiAlias(drawAntiAlias);
+		font.getPaint().draw(spriteBatch,text, x, y);
 	}
 
 	public void drawImage(Image image, int x, int y, int anchor) {
@@ -399,20 +347,24 @@ public class Graphics {
 		} else if ((anchor & Graphics.VCENTER) != 0) {
 			y -= image.getHeight() / 2;
 		}
-
-		canvas.drawBitmap(image.getBitmap(), x, y, null);
+		spriteBatch.draw(image.getTexture(), x, y);
+//		canvas.drawBitmap(image.getBitmap(), x, y, null);
 	}
 
 	public void drawImage(Image image, int x, int y, int width, int height, boolean filter, int alpha) {
-		imagePaint.setFilterBitmap(filter);
-		imagePaint.setAlpha(alpha);
-
-		if (width > 0 && height > 0) {
-			rectF.set(x, y, x + width, y + height);
-			canvas.drawBitmap(image.getBitmap(), null, rectF, imagePaint);
-		} else {
-			canvas.drawBitmap(image.getBitmap(), x, y, imagePaint);
-		}
+//		imagePaint.setFilterBitmap(filter);
+//		imagePaint.setAlpha(alpha);
+//
+//		if (width > 0 && height > 0) {
+//			rectF.set(x, y, x + width, y + height);
+//			canvas.drawBitmap(image.getBitmap(), null, rectF, imagePaint);
+//		} else {
+//			canvas.drawBitmap(image.getBitmap(), x, y, imagePaint);
+//		}
+		Color color = new Color(spriteBatch.getColor());
+		spriteBatch.setColor(1,1,1,alpha);
+		spriteBatch.draw(image.getTexture(), x, y, width, height);
+		spriteBatch.setColor(color);
 	}
 
 	public void drawSubstring(String str, int offset, int len, int x, int y, int anchor) {
@@ -422,45 +374,47 @@ public class Graphics {
 	public void drawRegion(Image image, int srcx, int srcy, int width, int height, int transform, int dstx, int dsty, int anchor) {
 		if (width == 0 || height == 0) return;
 
-		if (transform != 0) {
-			Rect srcR = new Rect(srcx, srcy, srcx + width, srcy + height);
-			RectF dstR = new RectF(0, 0, width, height);
-			RectF deviceR = new RectF();
-			Matrix matrix = Sprite.transformMatrix(transform, width / 2, height / 2);
-			matrix.mapRect(deviceR, dstR);
-
-			if ((anchor & Graphics.RIGHT) != 0) {
-				dstx -= deviceR.width();
-			} else if ((anchor & Graphics.HCENTER) != 0) {
-				dstx -= deviceR.width() / 2;
-			}
-			if ((anchor & Graphics.BOTTOM) != 0) {
-				dsty -= deviceR.height();
-			} else if ((anchor & Graphics.VCENTER) != 0) {
-				dsty -= deviceR.height() / 2;
-			}
-
-			canvas.save();
-			canvas.translate(-deviceR.left + dstx, -deviceR.top + dsty);
-			canvas.concat(matrix);
-			canvas.drawBitmap(image.getBitmap(), srcR, dstR, null);
-			canvas.restore();
-		} else {
+//		if (transform != 0) {
+//			Rect srcR = new Rect(srcx, srcy, srcx + width, srcy + height);
+//			RectF dstR = new RectF(0, 0, width, height);
+//			RectF deviceR = new RectF();
+//			Matrix4 matrix = Sprite.transformMatrix(transform, width / 2, height / 2);
+//			matrix.mapRect(deviceR, dstR);
+//
+//			if ((anchor & Graphics.RIGHT) != 0) {
+//				dstx -= deviceR.width();
+//			} else if ((anchor & Graphics.HCENTER) != 0) {
+//				dstx -= deviceR.width() / 2;
+//			}
+//			if ((anchor & Graphics.BOTTOM) != 0) {
+//				dsty -= deviceR.height();
+//			} else if ((anchor & Graphics.VCENTER) != 0) {
+//				dsty -= deviceR.height() / 2;
+//			}
+//
+//			canvas.save();
+//			canvas.translate(-deviceR.left + dstx, -deviceR.top + dsty);
+//			canvas.concat(matrix);
+//			canvas.drawBitmap(image.getBitmap(), srcR, dstR, null);
+//			canvas.restore();
+//		} else {
 			if ((anchor & Graphics.RIGHT) != 0) {
 				dstx -= width;
 			} else if ((anchor & Graphics.HCENTER) != 0) {
 				dstx -= width / 2;
 			}
-			if ((anchor & Graphics.BOTTOM) != 0) {
-				dsty -= height;
+			if ((anchor & Graphics.TOP) != 0) {
+				dsty += height;
 			} else if ((anchor & Graphics.VCENTER) != 0) {
-				dsty -= height / 2;
+				dsty += height / 2;
 			}
 
-			Rect srcR = new Rect(srcx, srcy, srcx + width, srcy + height);
-			RectF dstR = new RectF(dstx, dsty, dstx + width, dsty + height);
-			canvas.drawBitmap(image.getBitmap(), srcR, dstR, null);
-		}
+			spriteBatch.draw(image.getTexture(),dstx,dsty,srcx,srcy,width,height);
+
+//			Rect srcR = new Rect(srcx, srcy, srcx + width, srcy + height);
+//			RectF dstR = new RectF(dstx, dsty, dstx + width, dsty + height);
+//			canvas.drawBitmap(image.getBitmap(), srcR, dstR, null);
+//		}
 	}
 
 	public void drawRGB(int[] rgbData, int offset, int scanlength, int x, int y, int width, int height, boolean processAlpha) {
@@ -473,29 +427,25 @@ public class Graphics {
 		if (rows < height) {
 			height = rows;
 		}
-		if (!processAlpha) {
-			for (int iy = 0; iy < height; iy++) {
-				for (int ix = 0; ix < width; ix++) {
-					rgbData[offset + ix + iy * scanlength] |= (0xFF << 24);
-				}
-			}
-		}
+
+		Pixmap pixmap = Image.createRGBIPixmap(rgbData, offset, width, height, processAlpha);
+		Texture texture = new Texture(pixmap);
 		// Use deprecated method due to perfomance issues
-		canvas.drawBitmap(rgbData, offset, scanlength, x, y, width, height, processAlpha, null);
+		spriteBatch.draw(texture, x, y, width, height);
 	}
 
-	public void copyArea(int x_src, int y_src, int width, int height,
-						 int x_dest, int y_dest, int anchor) {
-		Bitmap bitmap = Bitmap.createBitmap(canvasBitmap, x_src, y_src, width, height);
-		drawImage(new Image(bitmap), x_dest, y_dest, anchor);
+	public void copyArea(int x_src, int y_src, int width, int height, int x_dest, int y_dest, int anchor) {
+//		Bitmap bitmap = Bitmap.createBitmap(canvasBitmap, x_src, y_src, width, height);
+//		drawImage(new Image(bitmap), x_dest, y_dest, anchor);
 	}
 
 	public void getPixels(int[] pixels, int offset, int stride,
 						  int x, int y, int width, int height) {
-		canvasBitmap.getPixels(pixels, offset, stride, x, y, width, height);
+//		canvasBitmap.getPixels(pixels, offset, stride, x, y, width, height);
+
 	}
 
-	public Bitmap getBitmap() {
+	public Pixmap getBitmap() {
 		return canvasBitmap;
 	}
 }

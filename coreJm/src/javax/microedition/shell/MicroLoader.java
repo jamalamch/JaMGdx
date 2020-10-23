@@ -53,6 +53,12 @@ import javax.microedition.util.ContextHolder;
 import javax.microedition.util.param.SharedPreferencesContainer;
 
 import androidx.preference.PreferenceManager;
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
+import com.badlogic.gdx.utils.IntArray;
+import com.badlogic.gdx.utils.IntIntMap;
 import io.reactivex.Single;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.settings.KeyMapper;
@@ -226,7 +232,7 @@ public class MicroLoader {
 				System.setProperty("microedition.encoding", "ISO-8859-1");
 			}
 
-			IntArray intArray = KeyMapper.getArrayPref(params);
+			IntIntMap intArray = KeyMapper.getArrayPref(params);
 			Displayable.setVirtualSize(screenWidth, screenHeight);
 			Canvas.setScale(screenScaleToFit, screenKeepAspectRatio, screenScaleRatio);
 			Canvas.setFilterBitmap(screenFilter);
@@ -312,10 +318,8 @@ public class MicroLoader {
 		ContextHolder.setVk(vk);
 	}
 
-	@SuppressLint("SimpleDateFormat")
-	public Single<String> takeScreenshot(Canvas canvas) {
-		return Single.create(emitter -> {
-			Bitmap bitmap = canvas.getOffscreenCopy().getBitmap();
+	public FileHandle takeScreenshot(Canvas canvas) {
+			Pixmap bitmap = canvas.getOffscreenCopy().getBitmap();
 			Calendar calendar = Calendar.getInstance();
 			Date now = calendar.getTime();
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
@@ -325,9 +329,8 @@ public class MicroLoader {
 			if (!screenshotDir.exists()) {
 				screenshotDir.mkdirs();
 			}
-			FileOutputStream out = new FileOutputStream(screenshotFile);
-			bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-			emitter.onSuccess(screenshotFile.getAbsolutePath());
-		});
+			FileHandle screenshot = new FileHandle(screenshotFile);
+			PixmapIO.writePNG(new FileHandle(screenshotFile),bitmap);
+			return screenshot;
 	}
 }

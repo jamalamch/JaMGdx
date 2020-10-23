@@ -20,6 +20,9 @@ package javax.microedition.lcdui;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 
@@ -511,14 +514,10 @@ public abstract class Canvas extends Displayable {
 	private int onX, onY, onWidth, onHeight;
 	private long lastFrameTime = System.currentTimeMillis();
 
-	private Handler uiHandler;
 	private Overlay overlay;
 	private FpsCounter fpsCounter;
 
 	public Canvas() {
-		if (parallelRedraw) {
-			uiHandler = new Handler(Looper.getMainLooper(), msg -> repaintScreen());
-		}
 		displayWidth = ContextHolder.getDisplayWidth();
 		displayHeight = ContextHolder.getDisplayHeight();
 		Gdx.app.log("Canvas", "Constructor. w=" + displayWidth + " h=" + displayHeight);
@@ -744,33 +743,23 @@ public abstract class Canvas extends Displayable {
 	}
 
 	@Override
-	public View getDisplayableView() {
-		if (layout == null) {
-			layout = (LinearLayout) super.getDisplayableView();
-			innerView = new InnerView(getParentActivity());
-			layout.addView(innerView);
-		}
-		return layout;
+	public Stage getDisplayableView() {
+		return super.getDisplayableView();
 	}
 
 	@Override
 	public void clearDisplayableView() {
-		synchronized (paintSync) {
 			super.clearDisplayableView();
-			layout = null;
 			innerView = null;
-		}
 	}
 
 	public void setFullScreenMode(boolean flag) {
-		synchronized (paintSync) {
 			if (fullscreen != flag) {
 				fullscreen = flag;
 				updateSize();
 				Display.postEvent(CanvasEvent.getInstance(Canvas.this, CanvasEvent.SIZE_CHANGED,
 						width, height));
 			}
-		}
 	}
 
 	public boolean hasPointerEvents() {
@@ -818,14 +807,10 @@ public abstract class Canvas extends Displayable {
 	// GameCanvas
 	public void flushBuffer(Image image) {
 		limitFps();
-		synchronized (paintSync) {
 			image.copyPixels(offscreenCopy);
 			if (!parallelRedraw) {
 				repaintScreen();
-			} else if (!uiHandler.hasMessages(0)) {
-				uiHandler.sendEmptyMessage(0);
 			}
-		}
 	}
 
 	private void limitFps() {
@@ -844,15 +829,6 @@ public abstract class Canvas extends Displayable {
 	}
 
 	private boolean repaintScreen() {
-		if (hwaOldEnabled) {
-			if (innerView != null) {
-				innerView.postInvalidate();
-			}
-			return true;
-		}
-		if (surface == null || !surface.isValid()) {
-			return true;
-		}
 		try {
 			Graphics g = this.graphics;
 			g.clear(backgroundColor);
@@ -959,5 +935,8 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void pointerReleased(int x, int y) {
+	}
+	public Rectangle getRectangle(){
+		return new Rectangle(getX(),getY(),getWidth(),getHeight());
 	}
 }
