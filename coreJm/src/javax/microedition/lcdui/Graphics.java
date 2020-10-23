@@ -74,7 +74,7 @@ public class Graphics {
 	}
 
 	private void resetClip() {
-		setClip(0, 0, canvas.getWidth(), canvas.getHeight());
+		setClip(0, 0, (int)canvas.getWidth(), (int)canvas.getHeight());
 	}
 
 	public void setCanvas(Canvas canvas, Pixmap canvasBitmap) {

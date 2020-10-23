@@ -15,8 +15,7 @@
  */
 
 package javax.microedition.lcdui.overlay;
-
-import android.graphics.RectF;
+import com.badlogic.gdx.math.Rectangle;
 
 import javax.microedition.lcdui.Canvas;
 
@@ -34,7 +33,7 @@ public interface Overlay extends Layer {
 	 * @param screen        the size of the device real screen
 	 * @param virtualScreen the size of the virtual screen that is available to the midlet
 	 */
-	public void resize(RectF screen, RectF virtualScreen);
+	public void resize(Rectangle screen, Rectangle virtualScreen);
 
 	/**
 	 * Called when the hardware key is pressed for the first time.

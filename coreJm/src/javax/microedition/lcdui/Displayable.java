@@ -79,7 +79,7 @@ public abstract class Displayable extends Actor{
 //		if (activity != null) {
 //			return activity.isVisible() && activity.getCurrent() == this;
 //		}
-		return isShown();
+		return super.isVisible();
 	}
 
 	public Stage getDisplayableView() {

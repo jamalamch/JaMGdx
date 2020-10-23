@@ -15,47 +15,49 @@
  */
 package javax.microedition.lcdui.overlay;
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.util.AttributeSet;
-import android.view.View;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.siemens.mp.lcdui.Canvas;
+
 
 import java.util.ArrayList;
 
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
-public class OverlayView extends View {
+public class OverlayView extends Actor {
 
 	private final Graphics graphics;
-	private final Rect surfaceRect = new Rect();
+	private final Rectangle surfaceRect = new Rectangle();
 	private ArrayList<Layer> layers = new ArrayList<>();
-	private boolean visible;
 
-	public OverlayView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		if (isInEditMode()) { // fix for IDE preview
-			graphics = null;
-		} else {
-			graphics = new Graphics();
-			graphics.setFont(new Font());
-		}
+	public OverlayView() {
+		super();
+		graphics = new Graphics();
+		graphics.setFont(new Font());
 	}
 
 	@Override
+	public void draw(Batch batch, float parentAlpha) {
+		super.draw(batch, parentAlpha);
+		for (Layer layer : layers) {
+			layer.paint(graphics);
+		}
+	}
+
 	protected void onDraw(Canvas canvas) {
-		if (!visible) return;
-		int save = canvas.save();
-		canvas.translate(surfaceRect.left, surfaceRect.top);
+		float x = canvas.getX();
+		float y = canvas.getX();
+		canvas.setPosition(surfaceRect.x,surfaceRect.y);
 		graphics.setSurfaceCanvas(canvas);
 		for (Layer layer : layers) {
 			layer.paint(graphics);
 		}
-		canvas.restoreToCount(save);
+		canvas.setPosition(x,y);
 	}
 
-	public void setTargetBounds(Rect bounds) {
+	public void setTargetBounds(Rectangle bounds) {
 		surfaceRect.set(bounds);
 	}
 
@@ -68,7 +70,6 @@ public class OverlayView extends View {
 	}
 
 	public void setVisibility(boolean visibility) {
-		visible = visibility && !layers.isEmpty();
-		postInvalidate();
+		setVisible(visibility && !layers.isEmpty());
 	}
 }

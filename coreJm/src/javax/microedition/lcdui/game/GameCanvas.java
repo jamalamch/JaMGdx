@@ -39,7 +39,7 @@ public class GameCanvas extends Canvas {
 	public GameCanvas(boolean suppressCommands) {
 		super();
 		this.suppressCommands = suppressCommands;
-		image = Image.createImage(width, maxHeight);
+		image = Image.createImage((int)getWidth(), (int)getHeight());
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class GameCanvas extends Canvas {
 	}
 
 	public void flushGraphics() {
-		flushGraphics(0, 0, width, height);
+		flushGraphics(0, 0, (int)getWidth(), (int)getHeight());
 	}
 
 	public void flushGraphics(int x, int y, int width, int height) {

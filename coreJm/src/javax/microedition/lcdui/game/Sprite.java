@@ -16,7 +16,8 @@
 
 package javax.microedition.lcdui.game;
 
-import android.graphics.Matrix;
+import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
 
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -461,14 +462,12 @@ public class Sprite extends Layer {
 
 				// find intersecting region,
 				// within the collision rectangles
-				int intersectLeft = (left < otherLeft) ? otherLeft : left;
-				int intersectTop = (top < otherTop) ? otherTop : top;
+				int intersectLeft = Math.max(left, otherLeft);
+				int intersectTop = Math.max(top, otherTop);
 
 				// used once, optimize.
-				int intersectRight = (right < otherRight)
-						? right : otherRight;
-				int intersectBottom = (bottom < otherBottom)
-						? bottom : otherBottom;
+				int intersectRight = Math.min(right, otherRight);
+				int intersectBottom = Math.min(bottom, otherBottom);
 
 				int intersectWidth = Math.abs(intersectRight - intersectLeft);
 				int intersectHeight = Math.abs(intersectBottom - intersectTop);
@@ -652,14 +651,12 @@ public class Sprite extends Layer {
 						// current cell/sprite intersection coordinates
 						// in painter coordinate system.
 						// find intersecting region,
-						int intersectLeft = (sx1 < cellLeft) ? cellLeft : sx1;
-						int intersectTop = (sy1 < cellTop) ? cellTop : sy1;
+						int intersectLeft = Math.max(sx1, cellLeft);
+						int intersectTop = Math.max(sy1, cellTop);
 
 						// used once, optimize.
-						int intersectRight = (sx2 < cellRight) ?
-								sx2 : cellRight;
-						int intersectBottom = (sy2 < cellBottom) ?
-								sy2 : cellBottom;
+						int intersectRight = Math.min(sx2, cellRight);
+						int intersectBottom = Math.min(sy2, cellBottom);
 
 						if (intersectLeft > intersectRight) {
 							int temp = intersectRight;
@@ -773,14 +770,12 @@ public class Sprite extends Layer {
 				}
 
 				// within the collision rectangles
-				int intersectLeft = (left < otherLeft) ? otherLeft : left;
-				int intersectTop = (top < otherTop) ? otherTop : top;
+				int intersectLeft = Math.max(left, otherLeft);
+				int intersectTop = Math.max(top, otherTop);
 
 				// used once, optimize.
-				int intersectRight = (right < otherRight)
-						? right : otherRight;
-				int intersectBottom = (bottom < otherBottom)
-						? bottom : otherBottom;
+				int intersectRight = Math.min(right, otherRight);
+				int intersectBottom = Math.min(bottom, otherBottom);
 
 				int intersectWidth = Math.abs(intersectRight - intersectLeft);
 				int intersectHeight = Math.abs(intersectBottom - intersectTop);
@@ -1308,26 +1303,18 @@ public class Sprite extends Layer {
 		switch (transform) {
 
 			case TRANS_NONE:
-				t_x = inp_x;
-				break;
-			case TRANS_MIRROR:
-				t_x = srcFrameWidth - inp_x - 1;
-				break;
 			case TRANS_MIRROR_ROT180:
 				t_x = inp_x;
 				break;
-			case TRANS_ROT90:
-				t_x = srcFrameHeight - inp_y - 1;
-				break;
+			case TRANS_MIRROR:
 			case TRANS_ROT180:
 				t_x = srcFrameWidth - inp_x - 1;
 				break;
-			case TRANS_ROT270:
-				t_x = inp_y;
-				break;
+			case TRANS_ROT90:
 			case TRANS_MIRROR_ROT90:
 				t_x = srcFrameHeight - inp_y - 1;
 				break;
+			case TRANS_ROT270:
 			case TRANS_MIRROR_ROT270:
 				t_x = inp_y;
 				break;
@@ -1340,30 +1327,21 @@ public class Sprite extends Layer {
 	private int getTransformedPtY(int inp_x, int inp_y, int transform) {
 		int t_y = 0;
 		switch (transform) {
-
 			case TRANS_NONE:
-				t_y = inp_y;
-				break;
 			case TRANS_MIRROR:
 				t_y = inp_y;
 				break;
 			case TRANS_MIRROR_ROT180:
-				t_y = srcFrameHeight - inp_y - 1;
-				break;
-			case TRANS_ROT90:
-				t_y = inp_x;
-				break;
 			case TRANS_ROT180:
 				t_y = srcFrameHeight - inp_y - 1;
 				break;
-			case TRANS_ROT270:
-				t_y = srcFrameWidth - inp_x - 1;
-				break;
-			case TRANS_MIRROR_ROT90:
-				t_y = srcFrameWidth - inp_x - 1;
-				break;
+			case TRANS_ROT90:
 			case TRANS_MIRROR_ROT270:
 				t_y = inp_x;
+				break;
+			case TRANS_ROT270:
+			case TRANS_MIRROR_ROT90:
+				t_y = srcFrameWidth - inp_x - 1;
 				break;
 			default:
 				break;
@@ -1371,42 +1349,48 @@ public class Sprite extends Layer {
 		return t_y;
 	}
 
-	public static Matrix transformMatrix(int transform, float px, float py) {
-		Matrix matrix = new Matrix();
+	public static Matrix3 transformMatrix(int transform, float px, float py) {
+		Matrix3 matrix = new Matrix3();
 
 		switch (transform) {
 			case Sprite.TRANS_ROT90:
-				matrix.preRotate(90, px, py);
+				matrix.rotateRad(90);
+				matrix.translate(px,py);
 				break;
-
 			case Sprite.TRANS_ROT180:
-				matrix.preRotate(180, px, py);
+				matrix.rotateRad(180);
+				matrix.translate(px,py);
 				break;
 
 			case Sprite.TRANS_ROT270:
-				matrix.preRotate(270, px, py);
+				matrix.rotateRad(270);
+				matrix.translate(px,py);
 				break;
 
 			case Sprite.TRANS_MIRROR:
-				matrix.preScale(-1, 1, px, py);
+				matrix.scale(-1, 1);
+				matrix.scale(-1,1);
+				matrix.translate(px,py);
 				break;
 
 			case Sprite.TRANS_MIRROR_ROT90:
-				matrix.preRotate(90, px, py);
-				matrix.preScale(-1, 1, px, py);
+				matrix.scale(-1, 1);
+				matrix.rotate(90);
+				matrix.translate(px,py);
 				break;
 
 			case Sprite.TRANS_MIRROR_ROT180:
-				matrix.preRotate(180, px, py);
-				matrix.preScale(-1, 1, px, py);
+				matrix.scale(-1, 1);
+				matrix.rotateRad(180);
+				matrix.translate(px,py);
 				break;
 
 			case Sprite.TRANS_MIRROR_ROT270:
-				matrix.preRotate(270, px, py);
-				matrix.preScale(-1, 1, px, py);
+				matrix.scale(-1, 1);
+				matrix.rotateRad(270);
+				matrix.translate(px,py);
 				break;
 		}
-
 		return matrix;
 	}
 }
