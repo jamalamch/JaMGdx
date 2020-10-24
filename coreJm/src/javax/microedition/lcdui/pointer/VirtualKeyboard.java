@@ -16,11 +16,6 @@
  */
 package javax.microedition.lcdui.pointer;
 
-import android.graphics.PointF;
-import android.graphics.RectF;
-import android.util.Log;
-import android.view.View;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -30,7 +25,10 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.overlay.Overlay;
 import javax.microedition.util.ContextHolder;
 
-import androidx.annotation.NonNull;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import sun.rmi.runtime.Log;
 
 public class VirtualKeyboard implements Overlay, Runnable {
 
@@ -50,7 +48,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	protected class VirtualKey {
 
-		private RectF rect;
+		private Rectangle rect;
 		private int keyCode, secondKeyCode;
 		private String label;
 		private boolean selected;
@@ -61,7 +59,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			this.keyCode = keyCode;
 			this.label = label;
 			this.visible = true;
-			rect = new RectF();
+			rect = new Rectangle();
 		}
 
 		VirtualKey(int keyCode, int secondKeyCode, String label) {
@@ -89,13 +87,12 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			return visible;
 		}
 
-		public RectF getRect() {
+		public Rectangle getRect() {
 			return rect;
 		}
 
 		void resize(float width, float height) {
-			rect.right = rect.left + width;
-			rect.bottom = rect.top + height;
+			rect.setSize(width, height);
 		}
 
 		public boolean contains(float x, float y) {
@@ -108,19 +105,19 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				int alpha = (opaque && layoutEditMode == LAYOUT_EOF) ? overlayAlpha : 0xFF000000;
 				g.setColorAlpha(alpha | colors[selected ? BACKGROUND_SELECTED : BACKGROUND]);
 				if (shape == SQUARE_SHAPE) {
-					g.fillRoundRect(rect, 0, 0);
+					g.fillRoundRect((int)rect.x,(int) rect.y,(int) rect.width,(int) rect.height, 0, 0);
 				} else {
-					g.fillArc(rect, 0, 360);
+					g.fillArc((int)rect.x,(int) rect.y,(int) rect.width,(int) rect.height, 0, 360);
 				}
 
 				g.setColorAlpha(alpha | colors[selected ? FOREGROUND_SELECTED : FOREGROUND]);
-				g.drawString(label, (int) rect.centerX(), (int) rect.centerY(), Graphics.HCENTER | Graphics.VCENTER);
+				g.drawString(label, (int) rect.width/2, (int) rect.height/2, Graphics.HCENTER | Graphics.VCENTER);
 
 				g.setColorAlpha(alpha | colors[OUTLINE]);
 				if (shape == SQUARE_SHAPE) {
-					g.drawRoundRect(rect, 0, 0);
+					g.drawRoundRect((int)rect.x,(int) rect.y,(int) rect.width,(int) rect.height, 0, 0);
 				} else {
-					g.drawArc(rect, 0, 360);
+					g.drawArc((int)rect.x,(int) rect.y, (int)rect.width,(int) rect.height, 0, 360);
 				}
 			}
 		}
@@ -129,9 +126,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			return label;
 		}
 
-		@NonNull
 		public String toString() {
-			return "[" + label + ": " + rect.left + ", " + rect.top + ", " + rect.right + ", " + rect.bottom + "]";
+			return "[" + label + ": " + rect.x + ", " + rect.y + ", " + rect.width + ", " + rect.height + "]";
 		}
 
 		public int hashCode() {
@@ -264,7 +260,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	protected Canvas target;
 
-	private View overlayView;
+//	private View overlayView;
 	private boolean obscuresVirtualScreen;
 	private boolean feedback;
 	private boolean forceOpacity;
@@ -276,7 +272,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	private int[] snapOrigins;
 	private int[] snapModes;
-	private PointF[] snapOffsets;
+	private Vector2[] snapOffsets;
 	protected boolean[] snapValid;
 	private int[] snapStack;
 
@@ -285,8 +281,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private float offsetX, offsetY;
 	private float prevScale;
 
-	protected RectF screen;
-	protected RectF virtualScreen;
+	protected Rectangle screen;
+	protected Rectangle virtualScreen;
 	private float keySize;
 	private float snapRadius;
 
@@ -333,7 +329,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 		snapOrigins = new int[keypad.length];
 		snapModes = new int[keypad.length];
-		snapOffsets = new PointF[keypad.length];
+		snapOffsets = new Vector2[keypad.length];
 		snapValid = new boolean[keypad.length];
 		snapStack = new int[keypad.length];
 
@@ -646,7 +642,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	protected void setSnap(int key, int origin, int mode) {
 		snapOrigins[key] = origin;
 		snapModes[key] = mode;
-		snapOffsets[key] = new PointF();
+		snapOffsets[key] = new Vector2();
 		snapValid[key] = false;
 	}
 
@@ -667,12 +663,12 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	private void snapKey(int key, int level) {
 		if (level >= snapStack.length) {
-			Log.d(TAG, "Snap loop detected: ");
+			Gdx.app.log(TAG, "Snap loop detected: ");
 			for (int i = 1; i < snapStack.length; i++) {
 				System.out.print(snapStack[i]);
 				System.out.print(", ");
 			}
-			Log.d(TAG, String.valueOf(key));
+			Gdx.app.log(TAG, String.valueOf(key));
 			return;
 		}
 		snapStack[level] = key;
@@ -693,7 +689,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		for (int i = 0; i < keypad.length; i++) {
 			snapKey(i, 0);
 			VirtualKey key = keypad[i];
-			if (key.isVisible() && RectF.intersects(key.getRect(), virtualScreen)) {
+//			&& RectF.intersects(key.getRect(), virtualScreen)
+			if (key.isVisible()) {
 				obscuresVirtualScreen = true;
 				key.intersectsScreen = true;
 			} else {
@@ -743,14 +740,14 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	@Override
-	public void resize(RectF screen, RectF virtualScreen) {
+	public void resize(Rectangle screen, Rectangle virtualScreen) {
 		this.screen = screen;
 		this.virtualScreen = virtualScreen;
-		float width = screen.width();
-		float height = screen.height();
+		float width = screen.width;
+		float height = screen.height;
 		boolean landscape = width > height;
-		float maxSize = Math.max(screen.width(), screen.height());
-		float minSize = Math.min(screen.width(), screen.height());
+		float maxSize = Math.max(screen.width, screen.height);
+		float minSize = Math.min(screen.width, screen.height);
 		boolean nonWide = maxSize / minSize < 2;
 		snapRadius = keyScales[0];
 		for (int i = 1; i < keyScales.length; i++) {
@@ -781,7 +778,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	protected void repaint() {
-		overlayView.postInvalidate();
+//		overlayView.postInvalidate();
 	}
 
 	/**
@@ -831,9 +828,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				for (int i = 0; i < keypad.length; i++) {
 					if (keypad[i].contains(x, y)) {
 						editedIndex = i;
-						RectF rect = keypad[i].getRect();
-						offsetX = x - rect.left;
-						offsetY = y - rect.top;
+						Rectangle rect = keypad[i].getRect();
+						offsetX = x - rect.x;
+						offsetY = y - rect.y + rect.height;
 						break;
 					}
 				}
@@ -886,8 +883,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				break;
 			case LAYOUT_KEYS:
 				if (editedIndex >= 0) {
-					RectF rect = keypad[editedIndex].getRect();
-					rect.offsetTo(x - offsetX, y - offsetY);
+					Rectangle rect = keypad[editedIndex].getRect();
+					rect.setCenter(x - offsetX, y - offsetY);
 					snapModes[editedIndex] = RectSnap.NO_SNAP;
 					for (int i = 0; i < keypad.length; i++) {
 						if (i != editedIndex && findSnap(editedIndex, i)) {
@@ -918,7 +915,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				} else {
 					delta = dy;
 				}
-				float scale = prevScale + delta / Math.max(screen.width(), screen.height());
+				float scale = prevScale + delta / Math.max(screen.width, screen.height);
 				if (Math.abs(1 - scale) <= SCALE_SNAP_RADIUS) {
 					scale = 1;
 				} else {
@@ -1069,7 +1066,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		this.forceOpacity = forceOpacity;
 	}
 
-	public void setView(View view) {
-		overlayView = view;
-	}
+//	public void setView(View view) {
+//		overlayView = view;
+//	}
 }

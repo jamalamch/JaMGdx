@@ -16,11 +16,10 @@
 
 package javax.microedition.lcdui.pointer;
 
-import android.graphics.RectF;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 
 public class FixedKeyboard extends VirtualKeyboard {
 
@@ -116,10 +115,10 @@ public class FixedKeyboard extends VirtualKeyboard {
 	}
 
 	@Override
-	public void resize(RectF screen, RectF virtualScreen) {
+	public void resize(Rectangle screen, Rectangle virtualScreen) {
 		this.screen = screen;
 		this.virtualScreen = virtualScreen;
-		float keyWidth = screen.width() / KEY_WIDTH_RATIO;
+		float keyWidth = screen.getWidth() / KEY_WIDTH_RATIO;
 		float keyHeight = keyWidth / KEY_HEIGHT_RATIO;
 		for (int i = 0; i < keypad.length; i++) {
 			keypad[i].resize(keyWidth, keyHeight);
@@ -130,11 +129,11 @@ public class FixedKeyboard extends VirtualKeyboard {
 	}
 
 	@Override
-	public void readLayout(DataInputStream dis) throws IOException {
+	public void readLayout(DataInputStream dis) {
 	}
 
 	@Override
-	public void writeLayout(DataOutputStream dos) throws IOException {
+	public void writeLayout(DataOutputStream dos) {
 	}
 
 	@Override

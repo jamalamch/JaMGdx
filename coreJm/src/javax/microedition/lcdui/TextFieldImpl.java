@@ -17,20 +17,10 @@
 
 package javax.microedition.lcdui;
 
-import android.content.Context;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-
 import javax.microedition.lcdui.event.SimpleEvent;
 
 class TextFieldImpl {
-	private EditText textview;
+//	private EditText textview;
 
 	private String text;
 	private int maxSize;
@@ -54,9 +44,9 @@ class TextFieldImpl {
 			this.text = "";
 		}
 
-		if (textview != null) {
-			ViewHandler.postEvent(msgSetText);
-		}
+//		if (textview != null) {
+//			ViewHandler.postEvent(msgSetText);
+//		}
 	}
 
 	void insert(String src, int pos) {
@@ -79,9 +69,9 @@ class TextFieldImpl {
 
 		this.maxSize = maxSize;
 
-		if (textview != null) {
-			textview.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxSize)});
-		}
+//		if (textview != null) {
+//			textview.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxSize)});
+//		}
 
 		return maxSize;
 	}
@@ -173,43 +163,43 @@ class TextFieldImpl {
 		setString(tmp);
 	}
 
-	EditText getView(Context context, Item item) {
-		if (textview == null) {
-			textview = new EditText(context);
-
-			setMaxSize(maxSize);
-			setConstraints(constraints);
-			setString(text);
-
-			textview.addTextChangedListener(new TextWatcher() {
-				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-				}
-
-				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
-				}
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					text = s.toString();
-				}
-			});
-
-			if (item != null) {
-				textview.setOnFocusChangeListener((v, hasFocus) -> {
-					if (!hasFocus) item.notifyStateChanged();
-				});
-			} else {
-				textview.setLayoutParams(new LinearLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-				textview.setGravity(Gravity.TOP);
-			}
-		}
-		return textview;
-	}
-
-	void clearScreenView() {
-		textview = null;
-	}
+//	EditText getView(Context context, Item item) {
+//		if (textview == null) {
+//			textview = new EditText(context);
+//
+//			setMaxSize(maxSize);
+//			setConstraints(constraints);
+//			setString(text);
+//
+//			textview.addTextChangedListener(new TextWatcher() {
+//				@Override
+//				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//				}
+//
+//				@Override
+//				public void onTextChanged(CharSequence s, int start, int before, int count) {
+//				}
+//
+//				@Override
+//				public void afterTextChanged(Editable s) {
+//					text = s.toString();
+//				}
+//			});
+//
+//			if (item != null) {
+//				textview.setOnFocusChangeListener((v, hasFocus) -> {
+//					if (!hasFocus) item.notifyStateChanged();
+//				});
+//			} else {
+//				textview.setLayoutParams(new LinearLayout.LayoutParams(
+//						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+//				textview.setGravity(Gravity.TOP);
+//			}
+//		}
+//		return textview;
+//	}
+//
+//	void clearScreenView() {
+//		textview = null;
+//	}
 }

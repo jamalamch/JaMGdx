@@ -45,6 +45,7 @@ public class Graphics {
 
 	private ShapeRenderer drawRender = new ShapeRenderer();
 	private SpriteBatch spriteBatch = new SpriteBatch();
+
 	private Rectangle clipRect = new Rectangle();
 	private int translateX;
 	private int translateY;
@@ -204,7 +205,8 @@ public class Graphics {
 	public void clipRect(int x, int y, int width, int height) {
 		// Calculate the clip
 		clipRect.set(x, y, width, height);
-		canvas.setBounds(x, y,  width,  height);
+		//canvas.setBounds(x, y,  width,  height);
+		canvas.getViewport().setScreenBounds(x,y,width,height);
 	}
 
 	public int getClipX() {

@@ -16,11 +16,8 @@
 
 package javax.microedition.lcdui;
 
-import android.view.View;
-
 public class Spacer extends Item {
 	private int width, height;
-	private View view;
 
 	public Spacer(int width, int height) {
 		this.width = width;
@@ -31,26 +28,5 @@ public class Spacer extends Item {
 		this.width = width;
 		this.height = height;
 
-		if (view != null) {
-			view.setMinimumWidth(width);
-			view.setMinimumHeight(height);
-		}
-	}
-
-	@Override
-	public View getItemContentView() {
-		if (view == null) {
-			view = new View(getOwnerForm().getParentActivity());
-
-			view.setMinimumWidth(width);
-			view.setMinimumHeight(height);
-		}
-
-		return view;
-	}
-
-	@Override
-	public void clearItemContentView() {
-		view = null;
 	}
 }

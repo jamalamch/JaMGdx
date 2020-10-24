@@ -17,8 +17,6 @@
 
 package javax.microedition.lcdui;
 
-import javax.microedition.lcdui.event.SimpleEvent;
-
 public class StringItem extends Item {
 	private String text;
 //	private TextView textview;

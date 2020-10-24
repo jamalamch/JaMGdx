@@ -17,98 +17,159 @@
 
 package javax.microedition.lcdui;
 
-import android.content.Context;
-import android.view.View;
+import com.badlogic.gdx.utils.StringBuilder;
 
 public class TextField extends Item {
+
 	public static final int ANY = 0;
-	public static final int EMAILADDR = 1;
-	public static final int NUMERIC = 2;
-	public static final int PHONENUMBER = 3;
-	public static final int URL = 4;
+	public static final int CONSTRAINT_MASK = 0xFFFF;
 	public static final int DECIMAL = 5;
-	public static final int CONSTRAINT_MASK = 65535;
+	public static final int EMAILADDR = 1;
+	public static final int INITIAL_CAPS_SENTENCE = 0x200000;
+	public static final int INITIAL_CAPS_WORD = 0x100000;
+	public static final int NON_PREDICTIVE = 0x80000;
+	public static final int NUMERIC = 2;
+	public static final int PASSWORD = 0x10000;
+	public static final int PHONENUMBER = 3;
+	public static final int SENSITIVE = 0x40000;
+	public static final int UNEDITABLE = 0x20000;
+	public static final int URL = 4;
 
-	public static final int PASSWORD = 65536;
-	public static final int UNEDITABLE = 131072;
-	public static final int SENSITIVE = 262144;
-	public static final int NON_PREDICTIVE = 524288;
-	public static final int INITIAL_CAPS_WORD = 1048576;
-	public static final int INITIAL_CAPS_SENTENCE = 2097152;
 
-	private TextFieldImpl textField;
+	private String text;
+	private int max;
+	private int constraints;
+	private String mode;
 
-	public TextField(String label, String text, int maxSize, int constraints) {
-		textField = new TextFieldImpl();
+	public TextField(String label, String value, int maxSize, int Constraints)
+	{
 		setLabel(label);
-		setMaxSize(maxSize);
-		setConstraints(constraints);
-		setString(text);
+		text = value;
+		max = maxSize;
+		constraints = Constraints;
 	}
 
-	public void setString(String text) {
-		textField.setString(text);
+	void delete(int offset, int length)
+	{
+		text = text.substring(0, offset) + text.substring(offset+length);
 	}
 
-	public void insert(String src, int pos) {
-		textField.insert(src, pos);
+	public int getCaretPosition() { return 0; }
+
+	public int getChars(char[] data)
+	{
+		for(int i=0; i<text.length(); i++)
+		{
+			data[i] = text.charAt(i);
+		}
+		return text.length();
 	}
 
-	public void insert(char[] data, int offset, int length, int position) {
-		insert(new String(data, offset, length), position);
+	public int getConstraints() { return constraints; }
+
+	public int getMaxSize() { return max; }
+
+	public String getString() { return text; }
+
+	public void insert(char[] data, int offset, int length, int position)
+	{
+		StringBuilder out = new StringBuilder();
+		out.append(text, 0, position);
+		out.append(data, offset, length);
+		out.append(text.substring(position));
+		text = out.toString();
 	}
 
-	public String getString() {
-		return textField.getString();
+	public void insert(String src, int position)
+	{
+		StringBuilder out = new StringBuilder();
+		out.append(text, 0, position);
+		out.append(src);
+		out.append(text.substring(position));
+		text = out.toString();
 	}
 
-	public int size() {
-		return getString().length();
+	public void setChars(char[] data, int offset, int length)
+	{
+		StringBuilder out = new StringBuilder();
+		out.append(data, offset, length);
+		text = out.toString();
 	}
 
-	public int setMaxSize(int maxSize) {
-		return textField.setMaxSize(maxSize);
-	}
+	public void setConstraints(int Constraints) { constraints = Constraints; }
 
-	public int getMaxSize() {
-		return textField.getMaxSize();
-	}
+	public void setInitialInputMode(String characterSubset) { mode = characterSubset; }
 
-	public void setConstraints(int constraints) {
-		textField.setConstraints(constraints);
-	}
+	public int setMaxSize(int maxSize) { max = maxSize; return max; }
 
-	public int getConstraints() {
-		return textField.getConstraints();
-	}
+	public void setString(String value) { text = value; }
 
-	public void setInitialInputMode(String characterSubset) {
-	}
+	public int size() { return text.length(); }
 
-	public void setChars(char[] data, int offset, int length) {
-		setString(new String(data, offset, length));
-	}
+//	private TextFieldImpl textField;
+//
+//	public TextField(String label, String text, int maxSize, int constraints) {
+//		textField = new TextFieldImpl();
+//		setLabel(label);
+//		setMaxSize(maxSize);
+//		setConstraints(constraints);
+//		setString(text);
+//	}
+//
+//	public void setString(String text) {
+//		textField.setString(text);
+//		text = text;
+//	}
+//
+//	public void insert(String src, int pos) {
+//		textField.insert(src, pos);
+//	}
+//
+//	public void insert(char[] data, int offset, int length, int position) {
+//		insert(new String(data, offset, length), position);
+//	}
+//
+//	public String getString() {
+//		return textField.getString();
+//	}
+//
+//	public int size() {
+//		return getString().length();
+//	}
+//
+//	public int setMaxSize(int maxSize) {
+//		return textField.setMaxSize(maxSize);
+//	}
+//
+//	public int getMaxSize() {
+//		return textField.getMaxSize();
+//	}
+//
+//	public void setConstraints(int constraints) {
+//		textField.setConstraints(constraints);
+//	}
+//
+//	public int getConstraints() {
+//		return textField.getConstraints();
+//	}
+//
+//	public void setInitialInputMode(String characterSubset) {
+//	}
+//
+//	public void setChars(char[] data, int offset, int length) {
+//		setString(new String(data, offset, length));
+//	}
+//
+//	public int getChars(char[] data) {
+//		return textField.getChars(data);
+//	}
+//
+//	public int getCaretPosition() {
+//		return textField.getCaretPosition();
+//	}
+//
+//	public void delete(int offset, int length) {
+//		textField.delete(offset, length);
+//	}
 
-	public int getChars(char[] data) {
-		return textField.getChars(data);
-	}
-
-	public int getCaretPosition() {
-		return textField.getCaretPosition();
-	}
-
-	public void delete(int offset, int length) {
-		textField.delete(offset, length);
-	}
-
-	@Override
-	public View getItemContentView() {
-		Context context = getOwnerForm().getParentActivity();
-		return textField.getView(context, this);
-	}
-
-	@Override
-	public void clearItemContentView() {
-		textField.clearScreenView();
-	}
 }

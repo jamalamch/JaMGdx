@@ -16,8 +16,8 @@
 
 package javax.microedition.lcdui.pointer;
 
-import android.graphics.PointF;
-import android.graphics.RectF;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * The rectangles binding.
@@ -182,46 +182,46 @@ public class RectSnap {
 	 * @param biaxial if true, then the binding will be either on both axes, or it will not be at all
 	 * @return the binding mode, or NO_SNAP
 	 */
-	public static int getSnap(RectF target, RectF origin, float radius, int mask, boolean biaxial) {
+	public static int getSnap(Rectangle target, Rectangle origin, float radius, int mask, boolean biaxial) {
 		int snap = NO_SNAP;
 
-		if (((mask & SNAP_LEFT) != 0) && Math.abs(origin.left - target.right) <= radius) {
+		if (((mask & SNAP_LEFT) != 0) && Math.abs(origin.x - target.x - target.width) <= radius) {
 			snap |= SNAP_LEFT;
-		} else if (((mask & ALIGN_LEFT) != 0) && Math.abs(origin.left - target.left) <= radius) {
+		} else if (((mask & ALIGN_LEFT) != 0) && Math.abs(origin.x - target.x) <= radius) {
 			snap |= ALIGN_LEFT;
-		} else if (((mask & ALIGN_HCENTER) != 0) && Math.abs(origin.centerX() - target.centerX()) <= radius) {
+		} else if (((mask & ALIGN_HCENTER) != 0) && Math.abs(origin.width/2 - target.width/2) <= radius) {
 			snap |= ALIGN_HCENTER;
-		} else if (((mask & ALIGN_RIGHT) != 0) && Math.abs(origin.right - target.right) <= radius) {
+		} else if (((mask & ALIGN_RIGHT) != 0) && Math.abs(origin.x + origin.width - target.x - target.width) <= radius) {
 			snap |= ALIGN_RIGHT;
-		} else if (((mask & SNAP_RIGHT) != 0) && Math.abs(origin.right - target.left) <= radius) {
+		} else if (((mask & SNAP_RIGHT) != 0) && Math.abs(origin.x + origin.width - target.x) <= radius) {
 			snap |= SNAP_RIGHT;
-		} else if (((mask & MID_LEFT) != 0) && Math.abs(origin.left - target.centerX()) <= radius) {
+		} else if (((mask & MID_LEFT) != 0) && Math.abs(origin.x - target.width/2) <= radius) {
 			snap |= MID_LEFT;
-		} else if (((mask & MID_RIGHT) != 0) && Math.abs(origin.right - target.centerX()) <= radius) {
+		} else if (((mask & MID_RIGHT) != 0) && Math.abs(origin.x + origin.width - target.width/2) <= radius) {
 			snap |= MID_RIGHT;
-		} else if (((mask & LEFT_HCENTER) != 0) && Math.abs(origin.centerX() - target.right) <= radius) {
+		} else if (((mask & LEFT_HCENTER) != 0) && Math.abs(origin.width/2 - target.x - target.width) <= radius) {
 			snap |= LEFT_HCENTER;
-		} else if (((mask & RIGHT_HCENTER) != 0) && Math.abs(origin.centerX() - target.left) <= radius) {
+		} else if (((mask & RIGHT_HCENTER) != 0) && Math.abs(origin.width/2 - target.x) <= radius) {
 			snap |= RIGHT_HCENTER;
 		}
 
-		if (((mask & SNAP_TOP) != 0) && Math.abs(origin.top - target.bottom) <= radius) {
+		if (((mask & SNAP_TOP) != 0) && Math.abs(origin.y + origin.height - target.y) <= radius) {
 			snap |= SNAP_TOP;
-		} else if (((mask & ALIGN_TOP) != 0) && Math.abs(origin.top - target.top) <= radius) {
+		} else if (((mask & ALIGN_TOP) != 0) && Math.abs(origin.y + origin.height - target.y - origin.height) <= radius) {
 			snap |= ALIGN_TOP;
-		} else if (((mask & ALIGN_VCENTER) != 0) && Math.abs(origin.centerY() - target.centerY()) <= radius) {
+		} else if (((mask & ALIGN_VCENTER) != 0) && Math.abs(origin.height/2 - target.height/2) <= radius) {
 			snap |= ALIGN_VCENTER;
-		} else if (((mask & ALIGN_BOTTOM) != 0) && Math.abs(origin.bottom - target.bottom) <= radius) {
+		} else if (((mask & ALIGN_BOTTOM) != 0) && Math.abs(origin.y - target.y) <= radius) {
 			snap |= ALIGN_BOTTOM;
-		} else if (((mask & SNAP_BOTTOM) != 0) && Math.abs(origin.bottom - target.top) <= radius) {
+		} else if (((mask & SNAP_BOTTOM) != 0) && Math.abs(origin.y - target.y - target.height) <= radius) {
 			snap |= SNAP_BOTTOM;
-		} else if (((mask & MID_TOP) != 0) && Math.abs(origin.top - target.centerY()) <= radius) {
+		} else if (((mask & MID_TOP) != 0) && Math.abs(origin.y + origin.height - target.height/2) <= radius) {
 			snap |= MID_TOP;
-		} else if (((mask & MID_BOTTOM) != 0) && Math.abs(origin.bottom - target.centerY()) <= radius) {
+		} else if (((mask & MID_BOTTOM) != 0) && Math.abs(origin.y - target.height/2) <= radius) {
 			snap |= MID_BOTTOM;
-		} else if (((mask & TOP_VCENTER) != 0) && Math.abs(origin.centerY() - target.bottom) <= radius) {
+		} else if (((mask & TOP_VCENTER) != 0) && Math.abs(origin.height/2 - target.y) <= radius) {
 			snap |= TOP_VCENTER;
-		} else if (((mask & BOTTOM_VCENTER) != 0) && Math.abs(origin.centerY() - target.top) <= radius) {
+		} else if (((mask & BOTTOM_VCENTER) != 0) && Math.abs(origin.height/2 - target.y - target.height) <= radius) {
 			snap |= BOTTOM_VCENTER;
 		}
 
@@ -242,31 +242,31 @@ public class RectSnap {
 	 * @param offset the point to which the offset from the binding will be written (or null)
 	 * @return the binding mode
 	 */
-	public static int getSnap(RectF target, RectF origin, PointF offset) {
+	public static int getSnap(Rectangle target, Rectangle origin, Vector2 offset) {
 		float[] rx =
 				{
-						origin.left - target.right,
-						origin.left - target.left,
-						origin.centerX() - target.centerX(),
-						origin.right - target.right,
-						origin.right - target.left,
-						origin.left - target.centerX(),
-						origin.right - target.centerX(),
-						origin.centerX() - target.right,
-						origin.centerX() - target.left
+						origin.x - target.x - target.width,
+						origin.x - target.x,
+						origin.width/2 - target.width/2,
+						origin.x+ origin.width - target.x - target.width,
+						origin.x+ origin.width - target.x,
+						origin.x - target.width/2,
+						origin.x + origin.width - target.width/2,
+						origin.width/2 - target.x - target.width,
+						origin.width/2 - target.x
 				};
 
 		float[] ry =
 				{
-						origin.top - target.bottom,
-						origin.top - target.top,
-						origin.centerY() - target.centerY(),
-						origin.bottom - target.bottom,
-						origin.bottom - target.top,
-						origin.top - target.centerY(),
-						origin.bottom - target.centerY(),
-						origin.centerY() - target.bottom,
-						origin.centerY() - target.top
+						origin.y + origin.height - target.y,
+						origin.y + origin.height - target.y - target.height,
+						origin.height/2 - target.height/2,
+						origin.y - target.y,
+						origin.y - target.y - target.height,
+						origin.y + origin.height - target.height/2,
+						origin.y - target.height/2,
+						origin.height/2 - target.y,
+						origin.height/2 - target.y - target.height
 				};
 
 		int[] snpx =
@@ -326,106 +326,86 @@ public class RectSnap {
 	 * @param mode   how to bind
 	 * @param offset the point to which the offset from the binding will be written (or null)
 	 */
-	public static void snap(RectF target, RectF origin, int mode, PointF offset) {
-		float width = target.width();
-		float height = target.height();
+	public static void snap(Rectangle target, Rectangle origin, int mode, Vector2 offset) {
 
 		switch (mode & HORIZONTAL_MASK) {
 			case SNAP_LEFT:
-				target.right = origin.left;
-				target.left = target.right - width;
+				target.x = origin.x - target.width;
 				break;
 
 			case ALIGN_LEFT:
-				target.left = origin.left;
-				target.right = target.left + width;
+				target.x = origin.x;
 				break;
 
 			case ALIGN_HCENTER:
-				target.left = origin.left + (origin.width() - width) / 2;
-				target.right = target.left + width;
+				target.x = origin.x + (origin.width - target.width) / 2;
 				break;
 
 			case ALIGN_RIGHT:
-				target.right = origin.right;
-				target.left = target.right - width;
+				target.x = origin.x + origin.width - target.width;
 				break;
 
 			case SNAP_RIGHT:
-				target.left = origin.right;
-				target.right = target.left + width;
+				target.x = origin.x + origin.width;
 				break;
 
 			case MID_LEFT:
-				target.left = origin.left - width / 2;
-				target.right = target.left + width;
+				target.x = origin.x - target.width / 2;
 				break;
 
 			case MID_RIGHT:
-				target.left = origin.right - width / 2;
-				target.right = target.left + width;
+				target.x = origin.x + origin.width - target.width / 2;
 				break;
 
 			case LEFT_HCENTER:
-				target.right = origin.centerX();
-				target.left = target.right - width;
+				target.x = origin.width/2 - target.width;
 				break;
 
 			case RIGHT_HCENTER:
-				target.left = origin.centerX();
-				target.right = target.left + width;
+				target.x = origin.width/2;
 				break;
 		}
 
 		switch (mode & VERTICAL_MASK) {
 			case SNAP_TOP:
-				target.bottom = origin.top;
-				target.top = target.bottom - height;
+				target.y = origin.y + origin.height;
 				break;
 
 			case ALIGN_TOP:
-				target.top = origin.top;
-				target.bottom = target.top + height;
+				target.y = origin.y + origin.height - target.height;
 				break;
 
 			case ALIGN_VCENTER:
-				target.top = origin.top + (origin.height() - height) / 2;
-				target.bottom = target.top + height;
+				target.y = origin.y - target.height*3 / 2;
 				break;
 
 			case ALIGN_BOTTOM:
-				target.bottom = origin.bottom;
-				target.top = target.bottom - height;
+				target.y = origin.y;
 				break;
 
 			case SNAP_BOTTOM:
-				target.top = origin.bottom;
-				target.bottom = target.top + height;
+				target.y = origin.y - target.height;
 				break;
 
 			case MID_TOP:
-				target.top = origin.top - height / 2;
-				target.bottom = target.top + height;
+				target.y = origin.y + origin.height - target.height *3/ 2;
 				break;
 
 			case MID_BOTTOM:
-				target.top = origin.bottom - height / 2;
-				target.bottom = target.top + height;
+				target.y = origin.y - target.height / 2 - target.height;
 				break;
 
 			case TOP_VCENTER:
-				target.bottom = origin.centerY();
-				target.top = target.bottom - height;
+				target.y = origin.height/2;
 				break;
 
 			case BOTTOM_VCENTER:
-				target.top = origin.centerY();
-				target.bottom = target.top + height;
+				target.y = origin.height/2 - target.height;
 				break;
 		}
 
 		if (offset != null) {
-			target.offset(offset.x, offset.y);
+			target.setCenter(offset.x, offset.y);
 		}
 	}
 }

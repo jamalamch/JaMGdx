@@ -17,9 +17,6 @@
 
 package javax.microedition.lcdui;
 
-import android.content.Context;
-import android.view.View;
-
 public class TextBox extends Screen {
 	private TextFieldImpl textField;
 
@@ -86,14 +83,14 @@ public class TextBox extends Screen {
 		textField.delete(offset, length);
 	}
 
-	@Override
-	public View getScreenView() {
-		Context context = getParentActivity();
-		return textField.getView(context, null);
-	}
-
-	@Override
-	public void clearScreenView() {
-		textField.clearScreenView();
-	}
+//	@Override
+//	public View getScreenView() {
+//		Context context = getParentActivity();
+//		return textField.getView(context, null);
+//	}
+//
+//	@Override
+//	public void clearScreenView() {
+//		textField.clearScreenView();
+//	}
 }
