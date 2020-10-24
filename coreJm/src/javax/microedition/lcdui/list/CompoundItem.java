@@ -16,10 +16,10 @@
  */
 
 package javax.microedition.lcdui.list;
-
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import javax.microedition.lcdui.Image;
 
@@ -39,11 +39,11 @@ public class CompoundItem {
 
 	public Drawable getDrawable(int height) {
 		if (imageDrawable == null && imagePart != null) {
-			Bitmap bitmap = imagePart.getBitmap();
+			Pixmap bitmap = imagePart.getBitmap();
 			int width = height / bitmap.getHeight() * bitmap.getWidth();
-			Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-			imageDrawable = new BitmapDrawable(scaledBitmap);
+			Pixmap scaledBitmap =  new Pixmap(width, height ,Pixmap.Format.RGB888);
+			scaledBitmap.drawPixmap(scaledBitmap,0,0,0,0,width,height);
+			imageDrawable = new TextureRegionDrawable( new Texture(scaledBitmap));
 		}
 		return imageDrawable;
 	}
-}

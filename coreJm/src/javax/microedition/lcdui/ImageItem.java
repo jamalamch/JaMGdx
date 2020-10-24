@@ -16,14 +16,11 @@
 
 package javax.microedition.lcdui;
 
-import android.view.View;
-import android.widget.ImageView;
-
 import javax.microedition.util.ContextHolder;
 
 public class ImageItem extends Item {
 	private Image image;
-	private ImageView imgview;
+//	private ImageView imgview;
 	private String altText;
 	private int appearanceMode;
 
@@ -42,9 +39,9 @@ public class ImageItem extends Item {
 	public void setImage(Image img) {
 		image = img;
 
-		if (imgview != null) {
-			updateImageView();
-		}
+//		if (imgview != null) {
+//			updateImageView();
+//		}
 	}
 
 	public Image getImage() {
@@ -70,28 +67,28 @@ public class ImageItem extends Item {
 			float mult = (float) displayWidth / virtualWidth;
 			int width = (int) (image.getWidth() * mult);
 			int height = (int) (image.getHeight() * mult);
-			imgview.setMinimumWidth(width);
-			imgview.setMinimumHeight(height);
-			imgview.setImageBitmap(image.getBitmap());
+//			imgview.setMinimumWidth(width);
+//			imgview.setMinimumHeight(height);
+//			imgview.setImageBitmap(image.getBitmap());
 		} else {
-			imgview.setImageBitmap(null);
+//			imgview.setImageBitmap(null);
 		}
 	}
 
-	@Override
-	public View getItemContentView() {
-		if (imgview == null) {
-			imgview = new ImageView(getOwnerForm().getParentActivity());
-			imgview.setScaleType(ImageView.ScaleType.FIT_XY);
-			imgview.setOnClickListener(v -> fireDefaultCommandAction());
-			updateImageView();
-		}
-
-		return imgview;
-	}
-
-	@Override
-	public void clearItemContentView() {
-		imgview = null;
-	}
+//	@Override
+//	public View getItemContentView() {
+//		if (imgview == null) {
+//			imgview = new ImageView(getOwnerForm().getParentActivity());
+//			imgview.setScaleType(ImageView.ScaleType.FIT_XY);
+//			imgview.setOnClickListener(v -> fireDefaultCommandAction());
+//			updateImageView();
+//		}
+//
+//		return imgview;
+//	}
+//
+//	@Override
+//	public void clearItemContentView() {
+//		imgview = null;
+//	}
 }

@@ -25,7 +25,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.FloatArray;
-
+import com.badlogic.gdx.utils.ScreenUtils;
 
 
 public class Graphics {
@@ -439,10 +439,15 @@ public class Graphics {
 //		drawImage(new Image(bitmap), x_dest, y_dest, anchor);
 	}
 
-	public void getPixels(int[] pixels, int offset, int stride,
-						  int x, int y, int width, int height) {
-//		canvasBitmap.getPixels(pixels, offset, stride, x, y, width, height);
-
+	public void getPixels(int[] pixels, int offset, int stride, int x, int y, int width, int height) {
+		Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(x, y, width, height);
+		// = new int[offset + width*height];
+		int j = 0;
+		for(int i=offset;i<pixels.length;i+=stride){
+			y++;
+			pixels[i] = pixmap.getPixel(x +(j%width),y +((j/width)));
+		}
+		pixmap.dispose();
 	}
 
 	public Pixmap getBitmap() {

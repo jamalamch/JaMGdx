@@ -16,12 +16,6 @@
 
 package javax.microedition.lcdui;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.view.MotionEvent;
-import android.view.View;
-
 public abstract class CustomItem extends Item {
 	protected static final int KEY_PRESS = 4;
 	protected static final int KEY_RELEASE = 8;
@@ -33,51 +27,51 @@ public abstract class CustomItem extends Item {
 	protected static final int TRAVERSE_HORIZONTAL = 1;
 	protected static final int TRAVERSE_VERTICAL = 2;
 
-	private InnerView view;
+//	private InnerView view;
 	private Image offscreen;
 	private int onWidth, onHeight;
 	private Graphics graphics = new Graphics();
 
-	private class InnerView extends View {
-		public InnerView(Context context) {
-			super(context);
-			setWillNotDraw(false);
-		}
-
-		@Override
-		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-			super.onSizeChanged(w, h, oldw, oldh);
-			updateSize();
-			repaint();
-		}
-
-		@Override
-		protected void onDraw(Canvas canvas) {
-			super.onDraw(canvas);
-			view.setMinimumHeight(onHeight);
-			graphics.setSurfaceCanvas(canvas);
-			graphics.drawImage(offscreen, 0, 0, onWidth, onHeight, false, 255);
-		}
-
-		@SuppressLint("ClickableViewAccessibility")
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			switch (event.getActionMasked()) {
-				case MotionEvent.ACTION_DOWN:
-					pointerPressed(convertPointerX(event.getX()), convertPointerY(event.getY()));
-					break;
-				case MotionEvent.ACTION_MOVE:
-					pointerDragged(convertPointerX(event.getX()), convertPointerY(event.getY()));
-					break;
-				case MotionEvent.ACTION_UP:
-					pointerReleased(convertPointerX(event.getX()), convertPointerY(event.getY()));
-					break;
-				default:
-					return super.onTouchEvent(event);
-			}
-			return true;
-		}
-	}
+//	private class InnerView extends View {
+//		public InnerView(Context context) {
+//			super(context);
+//			setWillNotDraw(false);
+//		}
+//
+//		@Override
+//		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+//			super.onSizeChanged(w, h, oldw, oldh);
+//			updateSize();
+//			repaint();
+//		}
+//
+//		@Override
+//		protected void onDraw(Canvas canvas) {
+//			super.onDraw(canvas);
+//			view.setMinimumHeight(onHeight);
+//			graphics.setSurfaceCanvas(canvas);
+//			graphics.drawImage(offscreen, 0, 0, onWidth, onHeight, false, 255);
+//		}
+//
+//		@SuppressLint("ClickableViewAccessibility")
+//		@Override
+//		public boolean onTouchEvent(MotionEvent event) {
+//			switch (event.getActionMasked()) {
+//				case MotionEvent.ACTION_DOWN:
+//					pointerPressed(convertPointerX(event.getX()), convertPointerY(event.getY()));
+//					break;
+//				case MotionEvent.ACTION_MOVE:
+//					pointerDragged(convertPointerX(event.getX()), convertPointerY(event.getY()));
+//					break;
+//				case MotionEvent.ACTION_UP:
+//					pointerReleased(convertPointerX(event.getX()), convertPointerY(event.getY()));
+//					break;
+//				default:
+//					return super.onTouchEvent(event);
+//			}
+//			return true;
+//		}
+//	}
 
 	protected CustomItem(String label) {
 		setLabel(label);
@@ -102,6 +96,7 @@ public abstract class CustomItem extends Item {
 	protected abstract void paint(Graphics g, int w, int h);
 
 	protected void sizeChanged(int w, int h) {
+		setSize(w, h);
 	}
 
 	protected final void invalidate() {
@@ -112,16 +107,16 @@ public abstract class CustomItem extends Item {
 	}
 
 	protected final void repaint(int x, int y, int width, int height) {
-		if (view == null) return;
-		graphics.setCanvas(offscreen.getCanvas(), offscreen.getBitmap());
-		graphics.reset();
-		graphics.setClip(x, y, width, height);
-		try {
-			paint(graphics, width, height);
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-		view.postInvalidate();
+//		if (view == null) return;
+//		graphics.setCanvas(offscreen.getCanvas(), offscreen.getBitmap());
+//		graphics.reset();
+//		graphics.setClip(x, y, width, height);
+//		try {
+//			paint(graphics, width, height);
+//		} catch (Throwable t) {
+//			t.printStackTrace();
+//		}
+//		view.postInvalidate();
 	}
 
 	protected boolean traverse(int dir, int viewportWidth, int viewportHeight, int[] visRect_inout) {
@@ -163,28 +158,28 @@ public abstract class CustomItem extends Item {
 		return (int) y * getMinContentHeight() / onHeight;
 	}
 
-	private void updateSize() {
-		float mult = view.getWidth() / (float) getMinContentWidth();
-		onWidth = (int) (getMinContentWidth() * mult);
-		onHeight = (int) (getMinContentHeight() * mult);
-	}
+//	private void updateSize() {
+////		float mult = view.getWidth() / (float) getMinContentWidth();
+//		onWidth = (int) (getMinContentWidth() * mult);
+//		onHeight = (int) (getMinContentHeight() * mult);
+//	}
 
-	@Override
-	protected View getItemContentView() {
-		if (view == null) {
-			view = new InnerView(getOwnerForm().getParentActivity());
-			int width = getMinContentWidth();
-			int height = getMinContentHeight();
-			view.setMinimumWidth(width);
-			view.setMinimumHeight(height);
-			offscreen = Image.createTransparentImage(width, height);
-		}
-
-		return view;
-	}
-
-	@Override
-	protected void clearItemContentView() {
-		view = null;
-	}
+//	@Override
+//	protected View getItemContentView() {
+//		if (view == null) {
+//			view = new InnerView(getOwnerForm().getParentActivity());
+//			int width = getMinContentWidth();
+//			int height = getMinContentHeight();
+//			view.setMinimumWidth(width);
+//			view.setMinimumHeight(height);
+//			offscreen = Image.createTransparentImage(width, height);
+//		}
+//
+//		return view;
+//	}
+//
+//	@Override
+//	protected void clearItemContentView() {
+//		view = null;
+//	}
 }

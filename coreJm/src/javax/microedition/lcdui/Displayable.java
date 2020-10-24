@@ -18,7 +18,9 @@
 
 package javax.microedition.lcdui;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.ArrayList;
 
@@ -26,7 +28,7 @@ import javax.microedition.lcdui.event.CommandActionEvent;
 import javax.microedition.shell.MicroActivity;
 import javax.microedition.util.ContextHolder;
 
-public abstract class Displayable extends Actor{
+public abstract class Displayable extends Stage{
 	private ArrayList<Command> commands;
 	protected CommandListener listener;
 
@@ -41,6 +43,7 @@ public abstract class Displayable extends Actor{
 	private static final int TICKER_HIDE = 2;
 
 	public Displayable() {
+		super(new ExtendViewport(virtualWidth, virtualHeight));
 		commands = new ArrayList<>();
 		listener = null;
 	}
@@ -63,7 +66,7 @@ public abstract class Displayable extends Actor{
 	}
 
 	public void setTitle(String title) {
-		this.setName(title);
+		this.getRoot().setName(title);
 //		MicroActivity activity = ContextHolder.getActivity();
 //		if (isShown()) {
 //			activity.runOnUiThread(() -> activity.setTitle(title));
@@ -71,7 +74,7 @@ public abstract class Displayable extends Actor{
 	}
 
 	public String getTitle() {
-		return getName();
+		return super.getRoot().getName();
 	}
 
 	public boolean isShown() {
@@ -79,7 +82,7 @@ public abstract class Displayable extends Actor{
 //		if (activity != null) {
 //			return activity.isVisible() && activity.getCurrent() == this;
 //		}
-		return super.isVisible();
+		return super.getRoot().isVisible();
 	}
 
 	public Stage getDisplayableView() {
@@ -102,11 +105,11 @@ public abstract class Displayable extends Actor{
 //				layout.addView(marquee);
 //			}
 //		}
-		return getStage();
+		return this;
 	}
 
 	public void clearDisplayableView() {
-		remove();
+		this.clear();
 	}
 
 	public void addCommand(Command cmd) {
@@ -155,9 +158,14 @@ public abstract class Displayable extends Actor{
 	}
 
 	public void sizeChanged(int w, int h) {
-		super.setSize(w,h);
+		super.getViewport().setWorldSize(w, h);
 	}
-
+	public void setWidth(float width){
+		super.getViewport().setWorldWidth(width);
+	}
+	public void setHeight(float Height){
+		super.getViewport().setWorldHeight(Height);
+	}
 	public boolean menuItemSelected(int id) {
 		if (listener == null) {
 			return true;

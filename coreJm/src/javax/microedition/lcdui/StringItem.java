@@ -17,33 +17,25 @@
 
 package javax.microedition.lcdui;
 
-import android.content.Context;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.URLSpan;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
 import javax.microedition.lcdui.event.SimpleEvent;
 
 public class StringItem extends Item {
 	private String text;
-	private TextView textview;
+//	private TextView textview;
 	private int appearanceMode;
 
-	private SimpleEvent msgSetText = new SimpleEvent() {
-		@Override
-		public void process() {
-			if (appearanceMode == HYPERLINK && text != null) {
-				SpannableStringBuilder s = new SpannableStringBuilder(text);
-				s.setSpan(new URLSpan(text), 0, s.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-				textview.setText(s);
-			} else {
-				textview.setText(text);
-			}
-		}
-	};
+//	private SimpleEvent msgSetText = new SimpleEvent() {
+//		@Override
+//		public void process() {
+//			if (appearanceMode == HYPERLINK && text != null) {
+//				SpannableStringBuilder s = new SpannableStringBuilder(text);
+//				s.setSpan(new URLSpan(text), 0, s.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+//				textview.setText(s);
+//			} else {
+//				textview.setText(text);
+//			}
+//		}
+//	};
 
 	public StringItem(String label, String text) {
 		this(label, text, PLAIN);
@@ -58,9 +50,9 @@ public class StringItem extends Item {
 	public void setText(String text) {
 		this.text = text;
 
-		if (textview != null) {
-			ViewHandler.postEvent(msgSetText);
-		}
+//		if (textview != null) {
+//			ViewHandler.postEvent(msgSetText);
+//		}
 	}
 
 	public String getText() {
@@ -78,33 +70,33 @@ public class StringItem extends Item {
 		return appearanceMode;
 	}
 
-	@Override
-	public View getItemContentView() {
-		if (textview == null) {
-			Context context = getOwnerForm().getParentActivity();
-
-			if (appearanceMode == BUTTON) {
-				textview = new Button(context);
-			} else {
-				textview = new TextView(context);
-			}
-
-			textview.setTextAppearance(context, android.R.style.TextAppearance_Small);
-			if (appearanceMode == HYPERLINK && text != null) {
-				SpannableStringBuilder s = new SpannableStringBuilder(text);
-				s.setSpan(new URLSpan(text), 0, s.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-				textview.setText(s);
-			} else {
-				textview.setText(text);
-			}
-			textview.setOnClickListener(v -> fireDefaultCommandAction());
-		}
-
-		return textview;
-	}
-
-	@Override
-	public void clearItemContentView() {
-		textview = null;
-	}
+//	@Override
+//	public View getItemContentView() {
+//		if (textview == null) {
+//			Context context = getOwnerForm().getParentActivity();
+//
+//			if (appearanceMode == BUTTON) {
+//				textview = new Button(context);
+//			} else {
+//				textview = new TextView(context);
+//			}
+//
+//			textview.setTextAppearance(context, android.R.style.TextAppearance_Small);
+//			if (appearanceMode == HYPERLINK && text != null) {
+//				SpannableStringBuilder s = new SpannableStringBuilder(text);
+//				s.setSpan(new URLSpan(text), 0, s.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+//				textview.setText(s);
+//			} else {
+//				textview.setText(text);
+//			}
+//			textview.setOnClickListener(v -> fireDefaultCommandAction());
+//		}
+//
+//		return textview;
+//	}
+//
+//	@Override
+//	public void clearItemContentView() {
+//		textview = null;
+//	}
 }

@@ -18,22 +18,13 @@
 
 package javax.microedition.lcdui;
 
-import android.content.Context;
-import android.util.TypedValue;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-
 import java.util.ArrayList;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class Form extends Screen {
 	private static final float BORDER_PADDING = 7;
 
-	private ScrollView scrollview;
-	private LinearLayout layout;
+//	private ScrollView scrollview;
+//	private LinearLayout layout;
 
 	private ArrayList<Item> items = new ArrayList<>();
 	private ItemStateListener listener;
@@ -72,13 +63,14 @@ public class Form extends Screen {
 
 		items.add(item);
 		item.setOwnerForm(this);
-		if (layout != null) {
-			AppCompatActivity a = getParentActivity();
-			if (a != null) {
-				View v = item.getItemView();
-				a.runOnUiThread(() -> layout.addView(v));
-			}
-		}
+		addActor(item);
+//		if (layout != null) {
+//			AppCompatActivity a = getParentActivity();
+//			if (a != null) {
+//				View v = item.getItemView();
+//				a.runOnUiThread(() -> layout.addView(v));
+//			}
+//		}
 		return items.size() - 1;
 	}
 
@@ -89,13 +81,14 @@ public class Form extends Screen {
 
 		items.add(index, item);
 		item.setOwnerForm(this);
-		if (layout != null) {
-			AppCompatActivity a = getParentActivity();
-			if (a != null) {
-				View v = item.getItemView();
-				a.runOnUiThread(() -> layout.addView(v, index));
-			}
-		}
+		getRoot().addActorAt(index,item);
+//		if (layout != null) {
+//			AppCompatActivity a = getParentActivity();
+//			if (a != null) {
+//				View v = item.getItemView();
+//				a.runOnUiThread(() -> layout.addView(v, index));
+//			}
+//		}
 	}
 
 	public void set(final int index, final Item item) {
@@ -105,27 +98,28 @@ public class Form extends Screen {
 
 		items.set(index, item).setOwnerForm(null);
 		item.setOwnerForm(this);
-		if (layout != null) {
-			AppCompatActivity a = getParentActivity();
-			if (a != null) {
-				a.runOnUiThread(() -> {
-					View v = item.getItemView();
-					layout.removeViewAt(index);
-					layout.addView(v, index);
-				});
-			}
-		}
+		getRoot().getChildren().set(index,item);
+//		if (layout != null) {
+//			AppCompatActivity a = getParentActivity();
+//			if (a != null) {
+//				a.runOnUiThread(() -> {
+//					View v = item.getItemView();
+//					layout.removeViewAt(index);
+//					layout.addView(v, index);
+//				});
+//			}
+//		}
 	}
 
 	public void delete(final int index) {
 		items.remove(index).setOwnerForm(null);
-
-		if (layout != null) {
-			AppCompatActivity a = getParentActivity();
-			if (a != null) {
-				a.runOnUiThread(() -> layout.removeViewAt(index));
-			}
-		}
+		getRoot().getChildren().removeIndex(index);
+//		if (layout != null) {
+//			AppCompatActivity a = getParentActivity();
+//			if (a != null) {
+//				a.runOnUiThread(() -> layout.removeViewAt(index));
+//			}
+//		}
 	}
 
 	public void deleteAll() {
@@ -134,13 +128,13 @@ public class Form extends Screen {
 		}
 
 		items.clear();
-
-		if (layout != null) {
-			AppCompatActivity a = getParentActivity();
-			if (a != null) {
-				a.runOnUiThread(() -> layout.removeAllViews());
-			}
-		}
+		clear();
+//		if (layout != null) {
+//			AppCompatActivity a = getParentActivity();
+//			if (a != null) {
+//				a.runOnUiThread(() -> layout.removeAllViews());
+//			}
+//		}
 	}
 
 	public void setItemStateListener(ItemStateListener listener) {
@@ -153,46 +147,46 @@ public class Form extends Screen {
 		}
 	}
 
-	@Override
-	public View getScreenView() {
-		if (scrollview == null) {
-			Context context = getParentActivity();
-
-			layout = new LinearLayout(context);
-			layout.setOrientation(LinearLayout.VERTICAL);
-
-			int padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, BORDER_PADDING, context.getResources().getDisplayMetrics()));
-			layout.setPadding(padding, padding, padding, padding);
-
-			scrollview = new ScrollView(context);
-			scrollview.addView(layout);
-
-			for (Item item : items) {
-				layout.addView(item.getItemView());
-			}
-		}
-
-		return scrollview;
-	}
-
-	@Override
-	public void clearScreenView() {
-		scrollview = null;
-		layout = null;
-
-		Item[] array = items.toArray(new Item[0]);
-		for (Item item : array) {
-			item.clearItemView();
-		}
-	}
-
-	public boolean contextMenuItemSelected(MenuItem menuitem) {
-		for (Item item : items) {
-			if (menuitem.getGroupId() == item.hashCode() && item.contextMenuItemSelected(menuitem)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
+//	@Override
+//	public View getScreenView() {
+//		if (scrollview == null) {
+//			Context context = getParentActivity();
+//
+//			layout = new LinearLayout(context);
+//			layout.setOrientation(LinearLayout.VERTICAL);
+//
+//			int padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, BORDER_PADDING, context.getResources().getDisplayMetrics()));
+//			layout.setPadding(padding, padding, padding, padding);
+//
+//			scrollview = new ScrollView(context);
+//			scrollview.addView(layout);
+//
+//			for (Item item : items) {
+//				layout.addView(item.getItemView());
+//			}
+//		}
+//
+//		return scrollview;
+//	}
+//
+//	@Override
+//	public void clearScreenView() {
+//		scrollview = null;
+//		layout = null;
+//
+//		Item[] array = items.toArray(new Item[0]);
+//		for (Item item : array) {
+//			item.clearItemView();
+//		}
+//	}
+//
+//	public boolean contextMenuItemSelected(MenuItem menuitem) {
+//		for (Item item : items) {
+//			if (menuitem.getGroupId() == item.hashCode() && item.contextMenuItemSelected(menuitem)) {
+//				return true;
+//			}
+//		}
+//
+//		return false;
+//	}
 }

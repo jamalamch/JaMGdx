@@ -645,7 +645,7 @@ public abstract class Canvas extends Displayable {
 		 * calculate the current height
 		 */
 		if (!fullscreen) {
-			setHeight(getHeight() * FULLSCREEN_HEIGHT_RATIO);
+			setHeight(getWidth() * FULLSCREEN_HEIGHT_RATIO);
 		}
 
 		/*
@@ -911,6 +911,6 @@ public abstract class Canvas extends Displayable {
 	public void pointerReleased(int x, int y) {
 	}
 	public Rectangle getRectangle(){
-		return new Rectangle(getX(),getY(),getWidth(),getHeight());
+		return new Rectangle(getRoot().getX(),getRoot().getY(),getWidth(),getHeight());
 	}
 }

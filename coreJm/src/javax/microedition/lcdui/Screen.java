@@ -16,33 +16,27 @@
  */
 
 package javax.microedition.lcdui;
-
-import android.view.View;
-import android.widget.LinearLayout;
-
 public abstract class Screen extends Displayable {
+//	@Override
+//	public View getDisplayableView() {
+//		if (layout == null) {
+//			layout = (LinearLayout) super.getDisplayableView();
+//
+//			layout.addView(getScreenView());
+//		}
+//
+//		return layout;
+//	}
+//
+//	@Override
+//	public void clearDisplayableView() {
+//		super.clearDisplayableView();
+//		layout = null;
+//		clearScreenView();
+//	}
+//
+//	public abstract View getScreenView();
+//
+//	public abstract void clearScreenView();
 
-	private LinearLayout layout;
-
-	@Override
-	public View getDisplayableView() {
-		if (layout == null) {
-			layout = (LinearLayout) super.getDisplayableView();
-
-			layout.addView(getScreenView());
-		}
-
-		return layout;
-	}
-
-	@Override
-	public void clearDisplayableView() {
-		super.clearDisplayableView();
-		layout = null;
-		clearScreenView();
-	}
-
-	public abstract View getScreenView();
-
-	public abstract void clearScreenView();
 }

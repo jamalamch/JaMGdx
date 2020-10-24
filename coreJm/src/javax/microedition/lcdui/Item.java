@@ -16,21 +16,12 @@
 
 package javax.microedition.lcdui;
 
-import android.content.Context;
-import android.view.ContextMenu;
-import android.view.Gravity;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import java.util.ArrayList;
 
 import javax.microedition.lcdui.event.CommandActionEvent;
-import javax.microedition.lcdui.event.SimpleEvent;
-
-public abstract class Item implements View.OnCreateContextMenuListener {
+public abstract class Item extends Actor {
 	public static final int PLAIN = 0;
 	public static final int HYPERLINK = 1;
 	public static final int BUTTON = 2;
@@ -57,12 +48,9 @@ public abstract class Item implements View.OnCreateContextMenuListener {
 	private static final int LABEL_SHOW = 1;
 	private static final int LABEL_HIDE = 2;
 
-	private LinearLayout layout;
-	private View contentview;
 
 	private String label;
-	private TextView labelview;
-	private int labelmode;
+//	private int labelmode;
 	private int preferredWidth, preferredHeight;
 	private int layoutmode;
 
@@ -72,54 +60,54 @@ public abstract class Item implements View.OnCreateContextMenuListener {
 	private ItemCommandListener listener = null;
 	private Command defaultCommand;
 
-	private SimpleEvent msgSetContextMenuListener = new SimpleEvent() {
-		@Override
-		public void process() {
-			if (listener != null) {
-				contentview.setOnCreateContextMenuListener(Item.this);
-			} else {
-				contentview.setLongClickable(false);
-			}
-		}
-	};
-
-	private SimpleEvent msgSetLabel = new SimpleEvent() {
-		@Override
-		public void process() {
-			labelview.setText(label);
-
-			switch (labelmode) {
-				case LABEL_SHOW:
-					layout.addView(labelview, 0);
-					break;
-
-				case LABEL_HIDE:
-					layout.removeView(labelview);
-					break;
-			}
-
-			labelmode = LABEL_NO_ACTION;
-		}
-	};
+//	private SimpleEvent msgSetContextMenuListener = new SimpleEvent() {
+//		@Override
+//		public void process() {
+//			if (listener != null) {
+//				contentview.setOnCreateContextMenuListener(Item.this);
+//			} else {
+//				contentview.setLongClickable(false);
+//			}
+//		}
+//	};
+//
+//	private SimpleEvent msgSetLabel = new SimpleEvent() {
+//		@Override
+//		public void process() {
+//			labelview.setText(label);
+//
+//			switch (labelmode) {
+//				case LABEL_SHOW:
+//					layout.addView(labelview, 0);
+//					break;
+//
+//				case LABEL_HIDE:
+//					layout.removeView(labelview);
+//					break;
+//			}
+//
+//			labelmode = LABEL_NO_ACTION;
+//		}
+//	};
 
 	public Item() {
 		setLayout(LAYOUT_DEFAULT);
 	}
 
 	public void setLabel(String value) {
-		if (layout != null) {
-			if (label == null && value != null) {
-				labelmode = LABEL_SHOW;
-			} else if (label != null && value == null) {
-				labelmode = LABEL_HIDE;
-			}
-
-			label = value;
-
-			ViewHandler.postEvent(msgSetLabel);
-		} else {
-			label = value;
-		}
+//		if (layout != null) {
+//			if (label == null && value != null) {
+//				labelmode = LABEL_SHOW;
+//			} else if (label != null && value == null) {
+//				labelmode = LABEL_HIDE;
+//			}
+//
+//			label = value;
+//
+//			ViewHandler.postEvent(msgSetLabel);
+//		} else {
+//		}
+		label = value;
 	}
 
 	public String getLabel() {
@@ -128,7 +116,7 @@ public abstract class Item implements View.OnCreateContextMenuListener {
 
 	public void setOwnerForm(Form form) {
 		owner = form;
-		clearItemView();
+//		clearItemView();
 	}
 
 	public Form getOwnerForm() {
@@ -162,92 +150,92 @@ public abstract class Item implements View.OnCreateContextMenuListener {
 	 *
 	 * @return LinearLayout with a label in the first row and some content in the second row
 	 */
-	public View getItemView() {
-		if (layout == null) {
-			Context context = owner.getParentActivity();
+//	public View getItemView() {
+//		if (layout == null) {
+//			Context context = owner.getParentActivity();
+//
+//			layout = new LinearLayout(context);
+//			layout.setOrientation(LinearLayout.VERTICAL);
+//
+//			labelview = new TextView(context);
+//			labelview.setTextAppearance(context, android.R.style.TextAppearance_Medium);
+//			labelview.setText(label);
+//
+//			if (label != null) {
+//				layout.addView(labelview, getLayoutParams());
+//			}
+//
+//			contentview = getItemContentView();
+//			layout.addView(contentview, getLayoutParams());
+//
+//			ViewHandler.postEvent(msgSetContextMenuListener);
+//		}
+//
+//		return layout;
+//	}
+//
+//	private LinearLayout.LayoutParams getLayoutParams() {
+//		int hwrap = LayoutParams.MATCH_PARENT;
+//		int vwrap = LayoutParams.WRAP_CONTENT;
+//		int gravity = Gravity.LEFT;
+//
+//		if (this instanceof ImageItem) {
+//			hwrap = LayoutParams.WRAP_CONTENT;
+//		}
+//
+//		if ((layoutmode & LAYOUT_SHRINK) != 0) {
+//			hwrap = LayoutParams.WRAP_CONTENT;
+//		} else if ((layoutmode & LAYOUT_EXPAND) != 0) {
+//			hwrap = LayoutParams.MATCH_PARENT;
+//		}
+//
+//		if ((layoutmode & LAYOUT_VSHRINK) != 0) {
+//			vwrap = LayoutParams.WRAP_CONTENT;
+//		} else if ((layoutmode & LAYOUT_VEXPAND) != 0) {
+//			vwrap = LayoutParams.MATCH_PARENT;
+//		}
+//
+//		int horizontal = layoutmode & HORIZONTAL_GRAVITY_MASK;
+//		if (horizontal == LAYOUT_CENTER) {
+//			gravity = Gravity.CENTER_HORIZONTAL;
+//		} else if (horizontal == LAYOUT_RIGHT) {
+//			gravity = Gravity.RIGHT;
+//			hwrap = LayoutParams.WRAP_CONTENT;
+//		} else if (horizontal == LAYOUT_LEFT) {
+//			gravity = Gravity.LEFT;
+//			hwrap = LayoutParams.WRAP_CONTENT;
+//		}
+//
+//		int vertical = layoutmode & VERTICAL_GRAVITY_MASK;
+//		if (vertical == LAYOUT_VCENTER) {
+//			gravity |= Gravity.CENTER_VERTICAL;
+//		} else if (vertical == LAYOUT_BOTTOM) {
+//			gravity |= Gravity.BOTTOM;
+//			vwrap = LayoutParams.WRAP_CONTENT;
+//		} else if (vertical == LAYOUT_TOP) {
+//			gravity |= Gravity.TOP;
+//			vwrap = LayoutParams.WRAP_CONTENT;
+//		}
+//
+//		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(hwrap, vwrap);
+//		layoutParams.gravity = gravity;
+//		return layoutParams;
+//	}
 
-			layout = new LinearLayout(context);
-			layout.setOrientation(LinearLayout.VERTICAL);
-
-			labelview = new TextView(context);
-			labelview.setTextAppearance(context, android.R.style.TextAppearance_Medium);
-			labelview.setText(label);
-
-			if (label != null) {
-				layout.addView(labelview, getLayoutParams());
-			}
-
-			contentview = getItemContentView();
-			layout.addView(contentview, getLayoutParams());
-
-			ViewHandler.postEvent(msgSetContextMenuListener);
-		}
-
-		return layout;
-	}
-
-	private LinearLayout.LayoutParams getLayoutParams() {
-		int hwrap = LayoutParams.MATCH_PARENT;
-		int vwrap = LayoutParams.WRAP_CONTENT;
-		int gravity = Gravity.LEFT;
-
-		if (this instanceof ImageItem) {
-			hwrap = LayoutParams.WRAP_CONTENT;
-		}
-
-		if ((layoutmode & LAYOUT_SHRINK) != 0) {
-			hwrap = LayoutParams.WRAP_CONTENT;
-		} else if ((layoutmode & LAYOUT_EXPAND) != 0) {
-			hwrap = LayoutParams.MATCH_PARENT;
-		}
-
-		if ((layoutmode & LAYOUT_VSHRINK) != 0) {
-			vwrap = LayoutParams.WRAP_CONTENT;
-		} else if ((layoutmode & LAYOUT_VEXPAND) != 0) {
-			vwrap = LayoutParams.MATCH_PARENT;
-		}
-
-		int horizontal = layoutmode & HORIZONTAL_GRAVITY_MASK;
-		if (horizontal == LAYOUT_CENTER) {
-			gravity = Gravity.CENTER_HORIZONTAL;
-		} else if (horizontal == LAYOUT_RIGHT) {
-			gravity = Gravity.RIGHT;
-			hwrap = LayoutParams.WRAP_CONTENT;
-		} else if (horizontal == LAYOUT_LEFT) {
-			gravity = Gravity.LEFT;
-			hwrap = LayoutParams.WRAP_CONTENT;
-		}
-
-		int vertical = layoutmode & VERTICAL_GRAVITY_MASK;
-		if (vertical == LAYOUT_VCENTER) {
-			gravity |= Gravity.CENTER_VERTICAL;
-		} else if (vertical == LAYOUT_BOTTOM) {
-			gravity |= Gravity.BOTTOM;
-			vwrap = LayoutParams.WRAP_CONTENT;
-		} else if (vertical == LAYOUT_TOP) {
-			gravity |= Gravity.TOP;
-			vwrap = LayoutParams.WRAP_CONTENT;
-		}
-
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(hwrap, vwrap);
-		layoutParams.gravity = gravity;
-		return layoutParams;
-	}
-
-	public void clearItemView() {
-		layout = null;
-		labelview = null;
-		contentview = null;
-
-		clearItemContentView();
-	}
+//	public void clearItemView() {
+////		layout = null;
+////		labelview = null;
+////		contentview = null;
+//
+////		clearItemContentView();
+//	}
 
 	/**
 	 * Get the item content
 	 */
-	protected abstract View getItemContentView();
+//	protected abstract View getItemContentView();
 
-	protected abstract void clearItemContentView();
+//	protected abstract void clearItemContentView();
 
 	public void addCommand(Command cmd) {
 		if (cmd == null) {
@@ -276,10 +264,10 @@ public abstract class Item implements View.OnCreateContextMenuListener {
 
 	public void setItemCommandListener(ItemCommandListener listener) {
 		this.listener = listener;
-
-		if (layout != null) {
-			ViewHandler.postEvent(msgSetContextMenuListener);
-		}
+//
+//		if (layout != null) {
+//			ViewHandler.postEvent(msgSetContextMenuListener);
+//		}
 	}
 
 	public void setPreferredSize(int width, int height) {
@@ -303,32 +291,32 @@ public abstract class Item implements View.OnCreateContextMenuListener {
 		return 0;
 	}
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		menu.clear();
-
-		for (Command cmd : commands) {
-			menu.add(hashCode(), cmd.hashCode(), cmd.getPriority(), cmd.getAndroidLabel());
-		}
-	}
-
-	public boolean contextMenuItemSelected(MenuItem item) {
-		if (listener == null) {
-			return false;
-		}
-
-		int id = item.getItemId();
-
-		for (Command cmd : commands) {
-			if (cmd.hashCode() == id) {
-				if (owner != null) {
-					Display.postEvent(CommandActionEvent.getInstance(listener, cmd, this));
-				}
-				return true;
-			}
-		}
-		return false;
-	}
+//	@Override
+//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+//		menu.clear();
+//
+//		for (Command cmd : commands) {
+//			menu.add(hashCode(), cmd.hashCode(), cmd.getPriority(), cmd.getAndroidLabel());
+//		}
+//	}
+//
+//	public boolean contextMenuItemSelected(MenuItem item) {
+//		if (listener == null) {
+//			return false;
+//		}
+//
+//		int id = item.getItemId();
+//
+//		for (Command cmd : commands) {
+//			if (cmd.hashCode() == id) {
+//				if (owner != null) {
+//					Display.postEvent(CommandActionEvent.getInstance(listener, cmd, this));
+//				}
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	public void fireDefaultCommandAction() {
 		if (defaultCommand != null) {

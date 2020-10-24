@@ -16,10 +16,6 @@
 
 package javax.microedition.lcdui;
 
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.SeekBar;
-
 public class Gauge extends Item {
 	public static final int CONTINUOUS_IDLE = 0;
 	public static final int INCREMENTAL_IDLE = 1;
@@ -28,30 +24,30 @@ public class Gauge extends Item {
 
 	public static final int INDEFINITE = -1;
 
-	private ProgressBar pbar;
+//	private ProgressBar pbar;
 
 	private boolean interactive;
 	private int value, maxValue;
 
-	private class SeekBarListener implements SeekBar.OnSeekBarChangeListener {
-		@Override
-		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-			if (fromUser) {
-				value = progress;
-				notifyStateChanged();
-			}
-		}
-
-		@Override
-		public void onStartTrackingTouch(SeekBar seekBar) {
-		}
-
-		@Override
-		public void onStopTrackingTouch(SeekBar seekBar) {
-		}
-	}
-
-	private SeekBarListener listener = new SeekBarListener();
+//	private class SeekBarListener implements SeekBar.OnSeekBarChangeListener {
+//		@Override
+//		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//			if (fromUser) {
+//				value = progress;
+//				notifyStateChanged();
+//			}
+//		}
+//
+//		@Override
+//		public void onStartTrackingTouch(SeekBar seekBar) {
+//		}
+//
+//		@Override
+//		public void onStopTrackingTouch(SeekBar seekBar) {
+//		}
+//	}
+//
+//	private SeekBarListener listener = new SeekBarListener();
 
 	public Gauge(String label, boolean interactive, int maxValue, int initialValue) {
 		setLabel(label);
@@ -68,9 +64,9 @@ public class Gauge extends Item {
 	public void setValue(int value) {
 		this.value = value;
 
-		if (pbar != null) {
-			pbar.setProgress(value);
-		}
+//		if (pbar != null) {
+//			pbar.setProgress(value);
+//		}
 	}
 
 	public int getMaxValue() {
@@ -80,30 +76,30 @@ public class Gauge extends Item {
 	public void setMaxValue(int maxValue) {
 		this.maxValue = maxValue;
 
-		if (pbar != null) {
-			pbar.setMax(maxValue);
-		}
+//		if (pbar != null) {
+//			pbar.setMax(maxValue);
+//		}
 	}
-
-	@Override
-	protected View getItemContentView() {
-		if (pbar == null) {
-			if (interactive) {
-				pbar = new SeekBar(getOwnerForm().getParentActivity());
-				((SeekBar) pbar).setOnSeekBarChangeListener(listener);
-			} else {
-				pbar = new ProgressBar(getOwnerForm().getParentActivity(), null, android.R.attr.progressBarStyleHorizontal);
-			}
-
-			pbar.setMax(maxValue);
-			pbar.setProgress(value);
-		}
-
-		return pbar;
-	}
-
-	@Override
-	protected void clearItemContentView() {
-		pbar = null;
-	}
+//
+//	@Override
+//	protected View getItemContentView() {
+//		if (pbar == null) {
+//			if (interactive) {
+//				pbar = new SeekBar(getOwnerForm().getParentActivity());
+//				((SeekBar) pbar).setOnSeekBarChangeListener(listener);
+//			} else {
+//				pbar = new ProgressBar(getOwnerForm().getParentActivity(), null, android.R.attr.progressBarStyleHorizontal);
+//			}
+//
+//			pbar.setMax(maxValue);
+//			pbar.setProgress(value);
+//		}
+//
+//		return pbar;
+//	}
+//
+//	@Override
+//	protected void clearItemContentView() {
+//		pbar = null;
+//	}
 }
